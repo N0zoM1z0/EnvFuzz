@@ -1017,6 +1017,8 @@ int main(int argc, char **argv, char **envp)
             (ssize_t)sizeof(option_nonce))
         error("failed to generate random nonce: %s", strerror(errno));
 
+    int replay_result = 0;
+
     // Loop over the tasks
     for (const char *task: tasks)
     {
@@ -1152,15 +1154,28 @@ int main(int argc, char **argv, char **envp)
             if (option_patch)
                 fprintf(stderr, "%s%s%s: ", YELLOW, task, OFF);
             if (WIFEXITED(status))
+            {
                 fprintf(stderr, "%sEXIT %d%s\n", GREEN, WEXITSTATUS(status),
                     OFF);
+                if (option_replay && WEXITSTATUS(status) != 0 &&
+                        replay_result == 0)
+                    replay_result = WEXITSTATUS(status);
+            }
             else if (WIFSIGNALED(status))
+            {
                 fprintf(stderr, "%s%s%s\n", RED, strsignal(WTERMSIG(status)),
                     OFF);
+                if (option_replay && replay_result == 0)
+                    replay_result = 128 + WTERMSIG(status);
+            }
             else
+            {
                 fprintf(stderr, "???\n");
+                if (option_replay && replay_result == 0)
+                    replay_result = 1;
+            }
         }
     }
 
-    return 0;
+    return replay_result;
 }

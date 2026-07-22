@@ -347,9 +347,9 @@ def parse_syscall_message(msg):
 
 
 def build_trace(path, trace_id=None):
-    path = Path(path)
-    trace_id = trace_id or path.parent.name or path.name
-    messages = parse_pcap_messages(path)
+    recording_path = Path(path)
+    trace_id = trace_id or recording_path.parent.name or recording_path.name
+    messages = parse_pcap_messages(recording_path)
     port_names = {
         10000: "stdio://stdin",
         10001: "stdio://stdout",
@@ -369,8 +369,8 @@ def build_trace(path, trace_id=None):
         call_index = len(calls)
         calls.append(call)
 
-        path = schedule_candidate_path(call)
-        if call["result"] >= 0 and path is not None:
+        sched_path = schedule_candidate_path(call)
+        if call["result"] >= 0 and sched_path is not None:
             schedule_nodes.append(
                 {
                     "type": "schedule",
@@ -380,7 +380,7 @@ def build_trace(path, trace_id=None):
                     "thread_id": call["thread_id"],
                     "syscall_no": call["no"],
                     "syscall_name": call["name"],
-                    "path": path,
+                    "path": sched_path,
                     "result": call["result"],
                     "sched_len": call["sched_len"],
                     "sched_sha256": payload_digest(msg["payload"]),
@@ -445,7 +445,7 @@ def build_trace(path, trace_id=None):
     return {
         "type": "trace",
         "trace_id": trace_id,
-        "source": str(path),
+        "source": str(recording_path),
         "message_count": len([m for m in messages if m["port"] != SCHED_PORT]),
         "syscall_count": len(calls),
         "resource_count": len(resources),

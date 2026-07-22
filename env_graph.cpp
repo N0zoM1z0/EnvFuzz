@@ -27,6 +27,8 @@ static bool envgraph_enabled(void)
 
 static const char *envgraph_skip_ws(const char *p, const char *end)
 {
+    if (p == NULL)
+        return NULL;
     while (p < end && isspace(*p))
         p++;
     return p;
@@ -35,10 +37,12 @@ static const char *envgraph_skip_ws(const char *p, const char *end)
 static const char *envgraph_find_key(const char *start, const char *end,
     const char *key)
 {
+    if (start == NULL)
+        return NULL;
     PRINTER K;
     K.format("\"%s\"", key);
     size_t klen = strlen(K.str());
-    for (const char *p = start; p + klen < end; p++)
+    for (const char *p = start; p + klen <= end; p++)
     {
         if (memcmp(p, K.str(), klen) != 0)
             continue;
@@ -117,6 +121,8 @@ static char *envgraph_parse_string(const char *p, const char *end)
 
 static bool envgraph_parse_size(const char *p, const char *end, size_t *out)
 {
+    if (p == NULL)
+        return false;
     p = envgraph_skip_ws(p, end);
     if (p == NULL || p >= end || !isdigit(*p))
         return false;
@@ -261,6 +267,13 @@ static void envgraph_load(void)
     buf[off] = '\0';
 
     const char *end = buf + off;
+    char *format = envgraph_parse_string(
+        envgraph_find_key(buf, end, "format"), end);
+    if (format == NULL || strcmp(format, "envgraph-v0") != 0)
+        error("invalid EnvGraph \"%s\": missing format envgraph-v0",
+            option_graphname);
+    xfree(format);
+
     const char *p = buf;
     while ((p = envgraph_find_literal(p, end, "\"payload_hex\"")) != NULL)
     {
@@ -284,15 +297,20 @@ static void envgraph_load(void)
         bool ok_len = envgraph_parse_size(
             envgraph_find_key(obj, obj_end, "payload_len"), obj_end, &len);
 
-        if (resource_key != NULL && payload_hex != NULL && ok_len && len > 0)
+        if (resource_key == NULL || payload_hex == NULL || !ok_len)
+            error("invalid EnvGraph \"%s\": malformed payload candidate",
+                option_graphname);
+
+        if (len > 0)
         {
             uint8_t *payload = envgraph_decode_hex(payload_hex, len);
             if (payload != NULL)
                 envgraph_add(resource_key, len, payload);
             else
-                xfree(resource_key);
+                error("invalid EnvGraph \"%s\": malformed payload_hex",
+                    option_graphname);
         }
-        else if (resource_key != NULL)
+        else
             xfree(resource_key);
         if (payload_hex != NULL)
             xfree(payload_hex);
@@ -320,11 +338,18 @@ static void envgraph_load(void)
         size_t len = 0;
         bool ok_len = envgraph_parse_size(
             envgraph_find_key(obj, obj_end, "sched_len"), obj_end, &len);
-        if (sched_hex != NULL && ok_len && len > 0)
+        if (sched_hex == NULL || !ok_len)
+            error("invalid EnvGraph \"%s\": malformed schedule candidate",
+                option_graphname);
+
+        if (len > 0)
         {
             uint8_t *payload = envgraph_decode_hex(sched_hex, len);
             if (payload != NULL)
                 envgraph_import_schedule(payload, len);
+            else
+                error("invalid EnvGraph \"%s\": malformed sched_hex",
+                    option_graphname);
         }
         if (sched_hex != NULL)
             xfree(sched_hex);
