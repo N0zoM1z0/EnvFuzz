@@ -63,6 +63,7 @@ struct FUZZER                   // The fuzzer state
     size_t aborts;              // # aborts
     size_t hangs;               // # hangs
     size_t graphs;              // # EnvGraph payload replacements
+    size_t frontiers;           // # EnvGraph queue frontier fallbacks
     size_t stage;               // Stage
     int timeout;                // Leaf timeout (ms)
 
@@ -586,6 +587,7 @@ static MSG *fuzzer_fork(const ENTRY *E, MSG *M, PATCH *replay)
         "%scrash=%zu%s "
         "%sabort=%zu%s %shang=%zu%s "
         "%sgraph=%zu%s "
+        "%sfrontier=%zu%s "
         "%sout=%.16llx%.16llx%s\n",
         M->id, xps / R, (xps % R) / 1000000, mem, pmem, B->out->threshold,
         COLOR(B->out->len >= B->out->size, WHITE), B->out->len,
@@ -595,6 +597,7 @@ static MSG *fuzzer_fork(const ENTRY *E, MSG *M, PATCH *replay)
         COLOR(FUZZ->aborts, YELLOW), FUZZ->aborts, OFF,
         COLOR(FUZZ->hangs, YELLOW), FUZZ->hangs, OFF,
         COLOR(FUZZ->graphs, WHITE), FUZZ->graphs, OFF,
+        COLOR(FUZZ->frontiers, WHITE), FUZZ->frontiers, OFF,
         COLOR(good, GREEN), (uint64_t)(K >> 64), (uint64_t)K, OFF);
 
     if (t / 1000000 >= FUZZ->max.time)

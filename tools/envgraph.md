@@ -92,3 +92,35 @@ saved graph patch: stdio://stdin -> "9-5\nquit\n"
 This proves that graph candidate replacement reaches the fuzzer corpus.  The
 `bc` workload is too shallow for queue count to be a meaningful improvement
 metric, so nano/GUI workloads remain the better targets for finding bugs.
+
+## M2 Frontier Fallback
+
+The runtime also supports conservative queue frontier fallback.  When a fuzz
+leaf asks for inbound data from an already-open resource and the primary trace
+queue is empty, EnvFuzz may synthesize one concrete message from the EnvGraph:
+
+- the resource key must match the current fd
+- the candidate must fit the current read buffer
+- no new fd, open result, or syscall schedule node is created
+- the synthesized message is appended to the ordinary patch
+
+Saved frontier patches replay without `--graph`.  During patch replay, an empty
+queue can consume the next patch entry by matching the current resource port.
+
+## M2 Smoke Snapshot
+
+The M2 smoke target reads a first two-byte token.  The base trace uses `AA` and
+exits immediately; the alternate trace uses `GO` then `OK` and reaches
+`FRONTIER_OK`.  A graph-assisted run can replace the first primary message with
+`GO`, then satisfy the new second read from the EnvGraph frontier.
+
+```text
+baseline, 3000 execs: graph=0, frontier=0, outs=1/16, queue patches=1
+graph,    3000 execs: graph=2477, frontier=823, outs=3/16, queue patches=3
+graph patch replay:  GO + OK -> FRONTIER_OK
+```
+
+This is a synthetic workload, but it proves the important M2 property: a graph
+candidate can drive the program into a branch that issues an input request not
+present in the primary trace, and the resulting patch is concrete and
+replayable.

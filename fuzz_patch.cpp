@@ -332,17 +332,38 @@ static PATCH *patch_load(const char *filename)
 /*
  * Get the next (patched) message.
  */
-static MSG *patch_next(MSG *M, PATCH *P)
+static MSG *patch_pop_head(PATCH *P)
 {
-    if (P == NULL || P->head == NULL || M->id != P->head->id)
-        return M;
-    M = P->head;
+    MSG *M = P->head;
     if (M == M->next)
         P->head = NULL;
     else
     {
+        M->prev->next = M->next;
+        M->next->prev = M->prev;
         P->head = M->next;
-        P->head->prev = M->prev;
     }
+    M->next = M->prev = M;
     return M;
+}
+
+static MSG *patch_next(MSG *M, PATCH *P)
+{
+    if (P == NULL || P->head == NULL || M->id != P->head->id)
+        return M;
+    return patch_pop_head(P);
+}
+
+/*
+ * Get the next patched frontier message.
+ *
+ * Frontier messages do not exist in the primary recording queue, so there is
+ * no recorded MSG id to match against.  Consume the next concrete patch entry
+ * only when it targets the current resource port.
+ */
+static MSG *patch_next_frontier(PATCH *P, int port)
+{
+    if (P == NULL || P->head == NULL || P->head->port != port)
+        return NULL;
+    return patch_pop_head(P);
 }

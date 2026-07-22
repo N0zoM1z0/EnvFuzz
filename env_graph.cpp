@@ -283,3 +283,53 @@ static MSG *envgraph_mutate(const ENTRY *E, MSG *M, RNG &R)
     }
     return NULL;
 }
+
+static size_t envgraph_count_frontier_matches(const ENTRY *E, size_t max_len)
+{
+    if (!envgraph_enabled() || E == NULL || E->name == NULL || max_len == 0)
+        return 0;
+    size_t count = 0;
+    for (ENVGRAPH_CAND *C = envgraph_cands; C != NULL; C = C->next)
+    {
+        if (C->len == 0 || C->len > max_len)
+            continue;
+        if (strcmp(C->resource_key, E->name) != 0)
+            continue;
+        count++;
+    }
+    return count;
+}
+
+static bool envgraph_has_frontier(const ENTRY *E)
+{
+    return envgraph_count_frontier_matches(E, SIZE_MAX) > 0;
+}
+
+static MSG *envgraph_frontier(const ENTRY *E, size_t max_len, uint32_t id,
+    RNG &R)
+{
+    size_t count = envgraph_count_frontier_matches(E, max_len);
+    if (count == 0)
+        return NULL;
+    size_t idx = R.rand(0, (uint32_t)count - 1);
+    for (ENVGRAPH_CAND *C = envgraph_cands; C != NULL; C = C->next)
+    {
+        if (C->len == 0 || C->len > max_len)
+            continue;
+        if (strcmp(C->resource_key, E->name) != 0)
+            continue;
+        if (idx-- != 0)
+            continue;
+
+        MSG *M = (MSG *)pmalloc(sizeof(MSG) + C->len);
+        M->next     = M->prev = M;
+        M->port     = E->port;
+        M->error    = 0;
+        M->outbound = false;
+        M->id       = id;
+        M->len      = C->len;
+        memcpy(M->payload, C->payload, C->len);
+        return M;
+    }
+    return NULL;
+}

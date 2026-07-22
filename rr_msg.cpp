@@ -139,6 +139,42 @@ static void queue_purge(QUEUE *Q, int port)
     (void)tdelete(&K, &Q->root, msg_compare);
 }
 
+static bool queue_frontier_available(const ENTRY *E)
+{
+    if (E == NULL || E->eof != 0)
+        return false;
+    if (option_patch && option_P != NULL && option_P->head != NULL &&
+            option_P->head->port == E->port)
+        return true;
+    return option_fuzz && fuzzer_state == FUZZ_LEAF && E->mutate &&
+        envgraph_has_frontier(E);
+}
+
+static MSG *queue_frontier_next(ENTRY *E, size_t max_len)
+{
+    if (E == NULL || E->eof != 0 || max_len == 0)
+        return NULL;
+
+    MSG *M = NULL;
+    if (option_patch)
+        M = patch_next_frontier(option_P, E->port);
+    if (M != NULL)
+        return M;
+
+    if (!option_fuzz || fuzzer_state != FUZZ_LEAF || FUZZ->patch == NULL ||
+            !E->mutate)
+        return NULL;
+
+    M = envgraph_frontier(E, max_len, (uint32_t)FUZZ->id, *fuzzer_RNG);
+    if (M == NULL)
+        return NULL;
+    E->eof++;
+    FUZZ->graphs++;
+    FUZZ->frontiers++;
+    FUZZ->patch->push_back(M);
+    return M;
+}
+
 /*
  * Get input from the queue.
  */
@@ -149,7 +185,12 @@ static ssize_t queue_read(iovec *iov, size_t iovcnt, int fd)
     MSG *M = queue_pop(Q, E->port);
     if (M == NULL)
     {
-        // No more data:
+        M = queue_frontier_next(E, iov_len(iov, iovcnt));
+        if (M != NULL)
+        {
+            struct iovec iov2 = {M->payload, M->len};
+            return (ssize_t)iov_copy(iov, iovcnt, &iov2, 1, SIZE_MAX);
+        }
         return 0;
     }
     if (M->outbound)
@@ -204,6 +245,12 @@ static ssize_t queue_emulate_read(iovec *iov, size_t iovcnt, int fd)
     MSG *M   = queue_peek(Q, E->port);
     if (M == NULL)
     {
+        M = queue_frontier_next(E, iov_len(iov, iovcnt));
+        if (M != NULL)
+        {
+            struct iovec iov2 = {M->payload, M->len};
+            return (ssize_t)iov_copy(iov, iovcnt, &iov2, 1, SIZE_MAX);
+        }
         switch (E->eof++)
         {
             case 0: case 1:
@@ -325,6 +372,16 @@ retry: {}
         MSG *M = queue_peek(Q, E->port);
         if (M == NULL)
         {
+            if (queue_frontier_available(E))
+            {
+                fds[i].revents = (fds[i].events & POLLIN);
+                if (fds[i].revents != 0)
+                {
+                    seen++;
+                    count++;
+                    continue;
+                }
+            }
             E->eof++;
             if (E->eof > 4)
                 error("program-under-test ignores EOF for (%s)", E->name);
