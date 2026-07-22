@@ -250,13 +250,18 @@ static intptr_t emulate_syscall(const SYSCALL *call)
     void *node = tfind(call, &INFO_syscall, syscall_compare);
     if (node == NULL)
     {
+        intptr_t result;
         switch (call->no)
         {
             case SYS_stat: case SYS_lstat:
-                return -ENOENT;
+                result = -ENOENT;
+                break;
             default:
-                return -ENOSYS;
+                result = -ENOSYS;
+                break;
         }
+        frontier_log_syscall("emulate_lookup_miss", call, result);
+        return result;
     }
     const SYSCALL *exp = *(SYSCALL **)node;
     const AUX *aux = exp->aux;
@@ -338,16 +343,17 @@ static int emulate_hook(STATE *state)
                 (call->no == SYS_open? call->arg0.path: call->arg1.path);
             int flags =
                 (call->no == SYS_open? call->arg1.flags: call->arg2.flags);
-            int mode = (call->no == SYS_open? call->arg2.i32: call->arg3.i32);
             call->result = fd_alloc();
             if (call->result < 0)
                 break;
-            if ((mode & O_ACCMODE) == O_WRONLY)
+            if ((flags & O_ACCMODE) == O_WRONLY)
                 break;
             void *node = tfind(call, &INFO_syscall, syscall_compare);
             if (node == NULL)
             {
                 call->result = -ENOENT;
+                frontier_log_syscall("emulate_open_miss", call,
+                    call->result);
                 break;
             }
             const SYSCALL *exp = *(SYSCALL **)node;

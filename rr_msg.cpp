@@ -42,6 +42,7 @@ struct MSG
 #include "fuzz_feedback.cpp"
 #include "env_graph.cpp"
 #include "fuzz_main.cpp"
+#include "frontier.cpp"
 
 struct QUEUE
 {
@@ -191,6 +192,7 @@ static ssize_t queue_read(iovec *iov, size_t iovcnt, int fd)
             struct iovec iov2 = {M->payload, M->len};
             return (ssize_t)iov_copy(iov, iovcnt, &iov2, 1, SIZE_MAX);
         }
+        frontier_log_queue("queue_read", E, iov_len(iov, iovcnt));
         return 0;
     }
     if (M->outbound)
@@ -251,6 +253,7 @@ static ssize_t queue_emulate_read(iovec *iov, size_t iovcnt, int fd)
             struct iovec iov2 = {M->payload, M->len};
             return (ssize_t)iov_copy(iov, iovcnt, &iov2, 1, SIZE_MAX);
         }
+        frontier_log_queue("queue_emulate_read", E, iov_len(iov, iovcnt));
         switch (E->eof++)
         {
             case 0: case 1:
@@ -382,6 +385,7 @@ retry: {}
                     continue;
                 }
             }
+            frontier_log_queue("queue_emulate_poll", E, 0);
             E->eof++;
             if (E->eof > 4)
                 error("program-under-test ignores EOF for (%s)", E->name);

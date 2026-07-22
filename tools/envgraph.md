@@ -179,3 +179,93 @@ The payload-only graph can reach the new branch but cannot satisfy the new
 `openat`.  The M3 graph imports one recorded `openat` candidate, preserving the
 canonical file resource identity so the M2 frontier can provide the file
 payload.
+
+## M4 Active Frontier Recording
+
+The runtime now records unresolved replay boundaries as JSONL frontiers under
+the selected campaign output directory:
+
+```text
+runs/<campaign>/frontiers/frontiers.jsonl
+```
+
+This keeps fuzz leaves deterministic: they never query the live environment to
+invent new resources.  Instead, the replay side logs enough context for an
+external harness to decide whether a missing resource should be exercised with a
+new recording.
+
+Current frontier kinds are:
+
+- `queue-empty`: an already-open resource requested input after the primary
+  trace queue and graph frontier both ran out
+- `syscall-miss`: syscall emulation could not find a matching recorded result,
+  including path-based `open/openat/stat/lstat/access` misses
+
+Each row includes the resource key or syscall name, request shape, fuzz trace
+prefix, and a small recent-output summary.  The helper
+`tools/frontier_runner.py` can group repeated frontiers and run harness-owned
+recording manifests:
+
+```bash
+tools/frontier_runner.py summarize \
+  runs/m4-open-frontier3/frontiers/frontiers.jsonl
+
+tools/frontier_runner.py run-manifest runs/tmp/m4-open-manifest.json
+```
+
+Minimal manifest format:
+
+```json
+{
+  "env_fuzz": "./env-fuzz",
+  "runs": [
+    {
+      "out": "runs/m4-open-active-alt",
+      "command": ["runs/tmp/m3_open_branch"],
+      "stdin_text": "GO"
+    }
+  ]
+}
+```
+
+The runner intentionally records whole new traces; it does not patch the active
+fuzz process.  Feed those recordings back through `tools/envgraph.py dump` and
+`build` to create the next graph generation.
+
+## M4 Smoke Snapshot
+
+Using the M3 `openat` synthetic workload, a payload-only graph reaches the
+stdin branch but cannot answer the new file open.  A short fuzz run generated
+366 repeated frontiers:
+
+```text
+frontier_group_count: 1
+kind: syscall-miss
+reason: emulate_open_miss
+syscall_name: openat
+resource_key: runs/tmp/m3-secret.txt
+count: 366
+```
+
+The active runner then recorded a new alternate trace with stdin `GO`, which
+prints `SCHED_GRAFT_OK`.  Rebuilding the graph from the base trace plus that
+active recording produced:
+
+```text
+candidate_group_count: 2
+candidate_payload_count: 3
+schedule_candidate_count: 1
+```
+
+An 800-exec graph-assisted fuzz run from the original base recording saved two
+queue patches.  One patch contains both `GO` and `OK`:
+
+```text
+active graph, 800 execs: graph=732, frontier=366, GO+OK patches=1
+active graph replay with --graph -> SCHED_GRAFT_OK
+same patch without --graph -> OPEN_MISS
+```
+
+This proves the M4 loop: fuzz discovers the missing environment frontier,
+external active recording supplies a real alternate trace, and the next graph
+generation can cross the previously missing `openat` boundary.
