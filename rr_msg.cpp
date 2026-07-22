@@ -169,7 +169,8 @@ static MSG *queue_frontier_next(ENTRY *E, size_t max_len)
     M = envgraph_frontier(E, max_len, (uint32_t)FUZZ->id, *fuzzer_RNG);
     if (M == NULL)
         return NULL;
-    E->eof++;
+    if (!envgraph_frontier_keeps_queue_open())
+        E->eof++;
     FUZZ->graphs++;
     FUZZ->frontiers++;
     FUZZ->patch->push_back(M);

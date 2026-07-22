@@ -511,6 +511,9 @@ def compile_resource_filters(args):
     args.exclude_resource_patterns = [
         re.compile(pattern) for pattern in args.exclude_resource_regex
     ]
+    args.sequence_resource_patterns = [
+        re.compile(pattern) for pattern in args.sequence_resource_regex
+    ]
 
 
 def resource_matches(patterns, values):
@@ -530,11 +533,89 @@ def resource_allowed(args, *values):
     return True
 
 
+def sequence_resource_allowed(args, *values):
+    values = [str(value) for value in values if value is not None]
+    return resource_matches(args.sequence_resource_patterns, values)
+
+
+def is_tty_control(byte):
+    return (byte < 32 and byte not in (9, 10, 13)) or byte == 127
+
+
+def sequence_metadata(payload):
+    control_count = sum(1 for byte in payload if is_tty_control(byte))
+    enter_count = sum(1 for byte in payload if byte in (10, 13))
+    printable_count = sum(1 for byte in payload if 32 <= byte < 127)
+    return {
+        "sequence_control_count": control_count,
+        "sequence_enter_count": enter_count,
+        "sequence_printable_count": printable_count,
+        "sequence_score": control_count * 1000 + enter_count * 20 + len(payload),
+    }
+
+
+def build_sequence_candidates(sequence_messages, args):
+    candidates = []
+    seen = set()
+    for (trace_id, resource_key), items in sorted(sequence_messages.items()):
+        items = sorted(items, key=lambda item: item["ordinal"])
+        for start in range(len(items)):
+            payload = b""
+            for end in range(start, len(items)):
+                item = items[end]
+                payload += bytes.fromhex(item["payload_hex"])
+                if len(payload) > args.max_sequence_len:
+                    break
+                if len(payload) < args.min_sequence_len:
+                    continue
+                metadata = sequence_metadata(payload)
+                if args.sequence_require_control and not metadata[
+                    "sequence_control_count"
+                ]:
+                    continue
+                digest = payload_digest(payload)
+                key = "%s|%s" % (resource_key, digest)
+                if key in seen:
+                    continue
+                seen.add(key)
+                candidates.append(
+                    {
+                        "trace_id": trace_id,
+                        "resource_key": resource_key,
+                        "resource_class": item["resource_class"],
+                        "resource_name": item["resource_name"],
+                        "start_ordinal": items[start]["ordinal"],
+                        "message_count": end - start + 1,
+                        "sequence_len": len(payload),
+                        "sequence_sha256": digest,
+                        "sequence_hex": payload.hex(),
+                        **metadata,
+                    }
+                )
+    candidates.sort(
+        key=lambda item: (
+            item["resource_key"],
+            -item["sequence_score"],
+            -item["sequence_len"],
+            item["trace_id"],
+            item["start_ordinal"],
+        )
+    )
+    return candidates[: args.max_sequences]
+
+
 def build_graph(args):
+    if args.include_sequences and args.min_sequence_len < 1:
+        raise ValueError("--min-sequence-len must be >= 1")
+    if args.include_sequences and args.min_sequence_len > args.max_sequence_len:
+        raise ValueError("--min-sequence-len must be <= --max-sequence-len")
+    if args.include_sequences and not args.sequence_resource_regex:
+        args.sequence_resource_regex = ["^stdio://stdin$"]
     compile_resource_filters(args)
     traces = {}
     resources = {}
     candidates = collections.defaultdict(list)
+    sequence_messages = collections.defaultdict(list)
     schedule_candidates = {}
     filtered = collections.Counter()
 
@@ -607,6 +688,14 @@ def build_graph(args):
             item["payload_len"],
         )
         candidates[candidate_key].append(candidate)
+        if not args.include_sequences:
+            continue
+        if not sequence_resource_allowed(
+            args, item.get("resource_key"), item.get("resource_name")
+        ):
+            filtered["sequence_message"] += 1
+            continue
+        sequence_messages[(trace_id, item["resource_key"])].append(candidate)
 
     graph_candidates = []
     for key, items in sorted(candidates.items()):
@@ -632,11 +721,21 @@ def build_graph(args):
             }
         )
 
+    sequence_candidates = []
+    if args.include_sequences:
+        sequence_candidates = build_sequence_candidates(sequence_messages, args)
+
     graph = {
         "format": "envgraph-v0",
         "build": {
             "min_variants": args.min_variants,
             "max_variants": args.max_variants,
+            "include_sequences": args.include_sequences,
+            "min_sequence_len": args.min_sequence_len,
+            "max_sequence_len": args.max_sequence_len,
+            "max_sequences": args.max_sequences,
+            "sequence_require_control": args.sequence_require_control,
+            "sequence_resource_regex": args.sequence_resource_regex,
             "input_count": len(args.dumps),
             "include_resource_regex": args.include_resource_regex,
             "exclude_resource_regex": args.exclude_resource_regex,
@@ -649,13 +748,16 @@ def build_graph(args):
                 len(group["candidates"]) for group in graph_candidates
             ),
             "schedule_candidate_count": len(schedule_candidates),
+            "sequence_candidate_count": len(sequence_candidates),
             "filtered_resource_count": filtered["resource"],
             "filtered_message_count": filtered["message"],
             "filtered_schedule_count": filtered["schedule"],
+            "filtered_sequence_message_count": filtered["sequence_message"],
         },
         "traces": traces,
         "resources": resources,
         "candidate_groups": graph_candidates,
+        "sequence_candidates": sequence_candidates,
         "schedule_candidates": [
             schedule_candidates[key] for key in sorted(schedule_candidates)
         ][: args.max_schedule_candidates],
@@ -708,6 +810,43 @@ def main(argv=None):
         type=int,
         default=256,
         help="maximum white-listed syscall schedule candidates stored",
+    )
+    build.add_argument(
+        "--include-sequences",
+        action="store_true",
+        help="store message-aligned inbound byte sequences for queue frontiers",
+    )
+    build.add_argument(
+        "--sequence-resource-regex",
+        action="append",
+        default=[],
+        help=(
+            "only build sequence candidates for matching resource keys or names; "
+            "defaults to stdin and may be repeated"
+        ),
+    )
+    build.add_argument(
+        "--min-sequence-len",
+        type=int,
+        default=2,
+        help="minimum byte length for sequence candidates",
+    )
+    build.add_argument(
+        "--max-sequence-len",
+        type=int,
+        default=32,
+        help="maximum byte length for sequence candidates",
+    )
+    build.add_argument(
+        "--max-sequences",
+        type=int,
+        default=256,
+        help="maximum sequence candidates stored in the graph",
+    )
+    build.add_argument(
+        "--sequence-require-control",
+        action="store_true",
+        help="only store sequence candidates containing a non-newline TTY control byte",
     )
     build.add_argument(
         "--include-resource-regex",

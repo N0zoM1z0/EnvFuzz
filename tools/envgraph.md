@@ -304,3 +304,65 @@ same patch without --graph -> OPEN_MISS
 This proves the M4 loop: fuzz discovers the missing environment frontier,
 external active recording supplies a real alternate trace, and the next graph
 generation can cross the previously missing `openat` boundary.
+
+## M5 Sequence-Aware TTY Frontiers
+
+Interactive TTY programs often read one byte at a time.  Plain EnvGraph
+frontiers can therefore learn useful byte values but still destroy command
+structure.  `build --include-sequences` stores message-aligned inbound byte
+windows in a separate `sequence_candidates` section using `sequence_hex`, so
+older payload parsing does not confuse them with ordinary single-message
+payloads.
+
+By default, sequence generation is limited to `stdio://stdin`:
+
+```bash
+tools/envgraph.py build --min-variants 1 \
+  --include-resource-regex '^(stdio://stdin|/path/to/workloads/)' \
+  --include-sequences \
+  --min-sequence-len 2 \
+  --max-sequence-len 32 \
+  --max-sequences 256 \
+  trace-a.jsonl trace-b.jsonl > tty-seq.graph.json
+```
+
+For terminal editors, a more focused graph can keep only windows that contain
+non-newline TTY control bytes such as Ctrl-key bytes, ESC, or DEL:
+
+```bash
+tools/envgraph.py build --min-variants 1 \
+  --include-resource-regex '^(stdio://stdin|/path/to/workloads/)' \
+  --include-sequences \
+  --sequence-require-control \
+  --max-sequence-len 12 \
+  --max-sequences 128 \
+  trace-a.jsonl trace-b.jsonl > tty-control-seq.graph.json
+```
+
+At runtime, EnvGraph prefers a matching sequence frontier before falling back
+to a single payload candidate.  When the target reads only one byte, the runtime
+keeps the queue open across consecutive reads until the chosen sequence is
+exhausted; each emitted chunk is still appended to the normal concrete patch.
+
+## M5 Nano 9.1 Snapshot
+
+Using seven active GNU nano 9.1 recordings, the generic sequence graph loaded:
+
+```text
+candidates=49 sequences=256 schedules=9
+```
+
+A 10-seed, 10000-exec comparison against the same base trace showed:
+
+```text
+nograph:                    mean outs=14.1/15, graph=0,       frontier=0
+filtered active graph:      mean outs=14.3/15, graph=133179,  frontier=89583
+generic sequence graph:     mean outs=13.1/15, graph=2800175, frontier=2754490
+control-key sequence graph: mean outs=13.3/15, graph=644408,  frontier=599321
+```
+
+No run produced crash, hang, or abort artifacts.  The sequence mechanism is
+therefore working, but this nano corpus did not show a real-app advantage from
+byte-window stdin sequences alone.  The remaining frontier class was still
+`stdio://stdin` queue-empty, which suggests the next useful step is prompt- or
+state-aware TTY action scheduling rather than simply injecting more bytes.
