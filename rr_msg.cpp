@@ -40,6 +40,7 @@ struct MSG
 #include "fuzz_mutate.cpp"
 #include "fuzz_patch.cpp"
 #include "fuzz_feedback.cpp"
+#include "env_graph.cpp"
 #include "fuzz_main.cpp"
 
 struct QUEUE
@@ -511,4 +512,3 @@ static int queue_emulate_epoll_wait(int efd, struct epoll_event *events,
     }
     return j;
 }
-

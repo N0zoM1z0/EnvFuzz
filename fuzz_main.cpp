@@ -62,6 +62,7 @@ struct FUZZER                   // The fuzzer state
     size_t crashes;             // # crashes
     size_t aborts;              // # aborts
     size_t hangs;               // # hangs
+    size_t graphs;              // # EnvGraph payload replacements
     size_t stage;               // Stage
     int timeout;                // Leaf timeout (ms)
 
@@ -458,7 +459,7 @@ boring_patch:
  * Fork the state.
  */
 #define COLOR(x, c)    ((x) == 0? GREY: c)
-static MSG *fuzzer_fork(MSG *M, PATCH *replay)
+static MSG *fuzzer_fork(const ENTRY *E, MSG *M, PATCH *replay)
 {
     // Step (0): Set-up the fork:
     FUZZ->patch = (PATCH *)pmalloc(sizeof(PATCH));
@@ -482,6 +483,15 @@ static MSG *fuzzer_fork(MSG *M, PATCH *replay)
         fuzzer_RNG->reset(seed);
         option_log = -1;
         mutex_enable(false);    // Avoid settid() overheads
+        if (fuzzer_RNG->flip())
+        {
+            MSG *N = envgraph_mutate(E, M, *fuzzer_RNG);
+            if (N != NULL)
+            {
+                FUZZ->graphs++;
+                return N;
+            }
+        }
         return mutate(*fuzzer_RNG, M, fuzzer_depth, FUZZ->stage);
     }
     else
@@ -575,6 +585,7 @@ static MSG *fuzzer_fork(MSG *M, PATCH *replay)
         "%spath=%.2zu%s "
         "%scrash=%zu%s "
         "%sabort=%zu%s %shang=%zu%s "
+        "%sgraph=%zu%s "
         "%sout=%.16llx%.16llx%s\n",
         M->id, xps / R, (xps % R) / 1000000, mem, pmem, B->out->threshold,
         COLOR(B->out->len >= B->out->size, WHITE), B->out->len,
@@ -583,6 +594,7 @@ static MSG *fuzzer_fork(MSG *M, PATCH *replay)
         COLOR(FUZZ->crashes, RED), FUZZ->crashes, OFF,
         COLOR(FUZZ->aborts, YELLOW), FUZZ->aborts, OFF,
         COLOR(FUZZ->hangs, YELLOW), FUZZ->hangs, OFF,
+        COLOR(FUZZ->graphs, WHITE), FUZZ->graphs, OFF,
         COLOR(good, GREEN), (uint64_t)(K >> 64), (uint64_t)K, OFF);
 
     if (t / 1000000 >= FUZZ->max.time)
@@ -633,6 +645,15 @@ static MSG *fuzzer_mutate(const ENTRY *E, MSG *M)
                 FUZZ->replay = M->next;
             }
             // Return (possibly mutated) message:
+            if (fuzzer_RNG->flip())
+            {
+                MSG *N = envgraph_mutate(E, M, *fuzzer_RNG);
+                if (N != NULL)
+                {
+                    FUZZ->graphs++;
+                    return N;
+                }
+            }
             return mutate(*fuzzer_RNG, M, fuzzer_depth, FUZZ->stage,
                 /*clone=*/true);
         default:
@@ -660,7 +681,7 @@ static MSG *fuzzer_mutate(const ENTRY *E, MSG *M)
             if (FUZZ->stop)
                 exit(EXIT_FAILURE);
 
-            MSG *N = fuzzer_fork(M, P);
+            MSG *N = fuzzer_fork(E, M, P);
             if (N != NULL)
                 return N;       // We are a leaf & N is the mutant message
         }
@@ -674,4 +695,3 @@ static MSG *fuzzer_mutate(const ENTRY *E, MSG *M)
 
     return M;
 }
-
