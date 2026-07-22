@@ -17,6 +17,7 @@ The dump is JSONL and contains:
 - one optional `summary` row
 - `resource` rows reconstructed from EnvFuzz port/name AUX data
 - `message` rows for per-resource inbound/outbound payloads
+- optional `schedule` rows when `--include-schedule` is used
 
 ## Build A Graph
 
@@ -36,6 +37,10 @@ The graph groups inbound payload candidates by:
 By default, only groups with at least two unique payloads are kept. That keeps
 the M1 runtime focused on real cross-trace diversity instead of replaying
 identical system-file payloads from multiple recordings.
+
+For M3 schedule graft experiments, use `dump --include-schedule` and usually
+build with `--min-variants 1`, because a newly reachable file/socket resource
+may only appear in one alternate trace.
 
 ## M0 Evaluation Snapshot
 
@@ -124,3 +129,53 @@ This is a synthetic workload, but it proves the important M2 property: a graph
 candidate can drive the program into a branch that issues an input request not
 present in the primary trace, and the resulting patch is concrete and
 replayable.
+
+## M3 Schedule Candidate Import
+
+The runtime can import a restricted schedule whitelist from EnvGraph into the
+existing syscall emulation lookup table.  The first whitelist is intentionally
+small:
+
+- `open`
+- `openat`
+- `stat`
+- `lstat`
+- `access`
+
+This does not splice a foreign syscall suffix into the primary schedule.  It
+only lets emulation answer matching path-based requests that were observed in
+another trace.  Subsequent reads still use the normal queue/frontier logic, so
+new file contents need payload candidates in the graph as well.
+
+```bash
+tools/envgraph.py dump --include-payload --include-schedule \
+  --trace-id m3-open-alt \
+  runs/m3-open-alt/RECORD.pcap.gz > runs/tmp/m3-open-alt.jsonl
+
+tools/envgraph.py build --min-variants 1 \
+  runs/tmp/m3-open-base.jsonl \
+  runs/tmp/m3-open-alt.jsonl > runs/tmp/m3-open.graph.json
+```
+
+M3 patches that rely on imported schedule nodes currently need the same
+`--graph` at replay time; the patch stores concrete payloads, but not the
+schedule candidate bytes.
+
+## M3 Smoke Snapshot
+
+The M3 smoke target exits on stdin `AA`.  With stdin `GO`, it opens
+`runs/tmp/m3-secret.txt` and prints `SCHED_GRAFT_OK` only if the file read
+returns `OK`.  The primary trace does not contain the `openat` schedule node.
+
+```text
+baseline,      2500 execs: graph=0,    frontier=0,    outs=1/16, GO+OK patches=0
+payload-only,  2500 execs: graph=1173, frontier=0,    outs=2/16, GO+OK patches=0
+M3 schedule,   2500 execs: graph=2346, frontier=1173, outs=2/16, GO+OK patches=1
+M3 graph replay: GO + OK patch with --graph -> SCHED_GRAFT_OK
+same patch without --graph -> OPEN_MISS
+```
+
+The payload-only graph can reach the new branch but cannot satisfy the new
+`openat`.  The M3 graph imports one recorded `openat` candidate, preserving the
+canonical file resource identity so the M2 frontier can provide the file
+payload.

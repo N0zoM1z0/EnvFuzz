@@ -1,10 +1,12 @@
 /*
  * EnvGraph runtime candidate support.
  *
- * M1 deliberately limits graph usage to concrete inbound payload replacement
- * for the current resource/message.  It does not graft schedules or create
- * file descriptors, so graph-assisted patches remain ordinary EnvFuzz patches.
+ * M1 uses graph data for concrete inbound payload replacement.  M2 extends
+ * that to empty-queue frontier payloads.  M3 imports a small whitelist of
+ * recorded schedule nodes into the existing syscall emulation lookup table.
  */
+
+static void emulate_set_syscall(const SYSCALL *call);
 
 struct ENVGRAPH_CAND
 {
@@ -16,6 +18,7 @@ struct ENVGRAPH_CAND
 
 static ENVGRAPH_CAND *envgraph_cands = NULL;
 static size_t envgraph_cand_count = 0;
+static size_t envgraph_sched_count = 0;
 
 static bool envgraph_enabled(void)
 {
@@ -167,6 +170,67 @@ static void envgraph_add(const char *resource_key, size_t len,
     envgraph_cand_count++;
 }
 
+static bool envgraph_schedule_allowed(int no)
+{
+    switch (no)
+    {
+        case SYS_open: case SYS_openat:
+        case SYS_stat: case SYS_lstat:
+        case SYS_access:
+            return true;
+        default:
+            return false;
+    }
+}
+
+static bool envgraph_schedule_valid(const uint8_t *payload, size_t len)
+{
+    if (payload == NULL || len < sizeof(SYSCALL) + sizeof(AUX))
+        return false;
+    const SYSCALL *call = (const SYSCALL *)payload;
+    if (!envgraph_schedule_allowed(call->no) || call->result < 0)
+        return false;
+    const AUX *aux = call->aux;
+    size_t off = sizeof(SYSCALL);
+    while (off + sizeof(AUX) <= len)
+    {
+        const AUX *A = (const AUX *)(payload + off);
+        off += sizeof(AUX);
+        if (off + A->size > len)
+            return false;
+        off += A->size;
+        if (A->kind == AEND)
+            return off == len;
+        aux = (const AUX *)(payload + off);
+    }
+    (void)aux;
+    return false;
+}
+
+static void envgraph_import_schedule(uint8_t *payload, size_t len)
+{
+    if (!envgraph_schedule_valid(payload, len))
+    {
+        xfree(payload);
+        return;
+    }
+
+    SYSCALL *call = (SYSCALL *)payload;
+    call->replay = false;
+    const AUX *aux = call->aux;
+    const char *name;
+    int port;
+    if ((name = aux_str(aux, MR_, ANAM)) != NULL &&
+            (port = aux_int(aux, MR_, APRT)) > 0)
+        name_set(port, name, /*replace=*/true);
+    if ((name = aux_str(aux, M_R, ANAM)) != NULL &&
+            (port = aux_int(aux, M_R, APRT)) > 0)
+        name_set(port, name, /*replace=*/true);
+
+    emulate_set_syscall(call);
+    envgraph_sched_count++;
+}
+
 static void envgraph_load(void)
 {
     if (!envgraph_enabled())
@@ -236,10 +300,43 @@ static void envgraph_load(void)
         p = obj_end + 1;
     }
 
+    p = buf;
+    while ((p = envgraph_find_literal(p, end, "\"sched_hex\"")) != NULL)
+    {
+        const char *obj = p;
+        while (obj > buf && *obj != '{')
+            obj--;
+        const char *obj_end = p;
+        while (obj_end < end && *obj_end != '}')
+            obj_end++;
+        if (obj >= p || obj_end >= end)
+        {
+            p++;
+            continue;
+        }
+
+        char *sched_hex = envgraph_parse_string(
+            envgraph_find_key(obj, obj_end, "sched_hex"), obj_end);
+        size_t len = 0;
+        bool ok_len = envgraph_parse_size(
+            envgraph_find_key(obj, obj_end, "sched_len"), obj_end, &len);
+        if (sched_hex != NULL && ok_len && len > 0)
+        {
+            uint8_t *payload = envgraph_decode_hex(sched_hex, len);
+            if (payload != NULL)
+                envgraph_import_schedule(payload, len);
+        }
+        if (sched_hex != NULL)
+            xfree(sched_hex);
+
+        p = obj_end + 1;
+    }
+
     xfree(buf);
     if (option_log >= 1)
-        fprintf(stderr, "%sENVGRAPH%s %s candidates=%zu\n", MAGENTA, OFF,
-            option_graphname, envgraph_cand_count);
+        fprintf(stderr, "%sENVGRAPH%s %s candidates=%zu schedules=%zu\n",
+            MAGENTA, OFF, option_graphname, envgraph_cand_count,
+            envgraph_sched_count);
 }
 
 static size_t envgraph_count_matches(const ENTRY *E, const MSG *M)

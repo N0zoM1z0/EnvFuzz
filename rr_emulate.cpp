@@ -352,9 +352,16 @@ static int emulate_hook(STATE *state)
             }
             const SYSCALL *exp = *(SYSCALL **)node;
             const AUX *aux = exp->aux;
+            int port = aux_int(aux, MR_, APRT);
+            const char *name = aux_str(aux, MR_, ANAM);
+            name = (name == NULL? path: name);
             ENTRY *E = fd_open(call->result, S_IFREG, SOCK_STREAM, flags,
-                path);
-            E->port = aux_int(aux, MR_, APRT);
+                name);
+            if (port > 0)
+            {
+                E->port = port;
+                E->name = name_set(port, name, /*replace=*/true);
+            }
 //            fprintf(stderr, "%sOPEN%s(%s) = %d\n", BLUE, OFF, path,
 //                call->result);
             break;
@@ -582,4 +589,3 @@ emulate_exit:
     state->rax = call->result;
     return REPLACE;
 }
-

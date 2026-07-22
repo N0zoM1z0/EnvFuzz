@@ -43,6 +43,10 @@ M_I____ = 0x02
 MR_ = 0x40
 M_R = 0x80
 
+ASTR = 5
+
+ARG_MASKS = [0x01, 0x02, 0x04, 0x08, 0x10, 0x20]
+
 SYS_NAMES = {
     0: "read",
     1: "write",
@@ -87,6 +91,7 @@ SYS_NAMES = {
     231: "exit_group",
     257: "openat",
     262: "newfstatat",
+    269: "faccessat",
     273: "set_robust_list",
     280: "utimensat",
     288: "accept4",
@@ -96,6 +101,7 @@ SYS_NAMES = {
     302: "prlimit64",
     318: "getrandom",
     319: "memfd_create",
+    332: "statx",
     334: "rseq",
     335: "rdtsc",
     336: "start",
@@ -103,6 +109,19 @@ SYS_NAMES = {
     339: "signal",
     435: "clone3",
     436: "close_range",
+    439: "faccessat2",
+}
+
+SCHEDULE_PATH_ARG = {
+    2: 0,      # open
+    4: 0,      # stat
+    6: 0,      # lstat
+    21: 0,     # access
+    257: 1,    # openat
+    262: 1,    # newfstatat
+    269: 1,    # faccessat
+    332: 1,    # statx
+    439: 1,    # faccessat2
 }
 
 
@@ -290,6 +309,20 @@ def aux_str(aux, mask, kind):
     return None
 
 
+def schedule_candidate_path(call):
+    idx = SCHEDULE_PATH_ARG.get(call["no"])
+    if idx is None:
+        return None
+    mask = ARG_MASKS[idx]
+    path = aux_str(call["aux"], mask, APTH)
+    if path:
+        return os.path.normpath(path)
+    path = aux_str(call["aux"], mask, ASTR)
+    if path:
+        return os.path.normpath(path)
+    return None
+
+
 def parse_syscall_message(msg):
     payload = msg["payload"]
     if len(payload) < SYSCALL_SIZE:
@@ -308,6 +341,8 @@ def parse_syscall_message(msg):
         "args": list(args),
         "result": result,
         "aux": aux,
+        "sched_hex": payload.hex(),
+        "sched_len": len(payload),
     }
 
 
@@ -322,6 +357,7 @@ def build_trace(path, trace_id=None):
     }
     calls = []
     nodes = []
+    schedule_nodes = []
     resource_stats = collections.Counter()
 
     for msg in messages:
@@ -332,6 +368,25 @@ def build_trace(path, trace_id=None):
             continue
         call_index = len(calls)
         calls.append(call)
+
+        path = schedule_candidate_path(call)
+        if call["result"] >= 0 and path is not None:
+            schedule_nodes.append(
+                {
+                    "type": "schedule",
+                    "trace_id": trace_id,
+                    "msg_id": msg["id"],
+                    "call_index": call_index,
+                    "thread_id": call["thread_id"],
+                    "syscall_no": call["no"],
+                    "syscall_name": call["name"],
+                    "path": path,
+                    "result": call["result"],
+                    "sched_len": call["sched_len"],
+                    "sched_sha256": payload_digest(msg["payload"]),
+                    "sched_hex": call["sched_hex"],
+                }
+            )
 
         for mask in (MR_, M_R):
             port = aux_int(call["aux"], mask, APRT)
@@ -396,6 +451,7 @@ def build_trace(path, trace_id=None):
         "resource_count": len(resources),
         "resources": resources,
         "nodes": nodes,
+        "schedule_nodes": schedule_nodes,
     }
 
 
@@ -431,6 +487,9 @@ def dump_trace(args):
         if not args.include_payload:
             out.pop("payload_hex", None)
         print(json.dumps(out, sort_keys=True))
+    if args.include_schedule:
+        for node in trace["schedule_nodes"]:
+            print(json.dumps(node, sort_keys=True))
 
 
 def read_json_lines(paths):
@@ -448,6 +507,7 @@ def build_graph(args):
     traces = {}
     resources = {}
     candidates = collections.defaultdict(list)
+    schedule_candidates = {}
 
     for item in read_json_lines(args.dumps):
         item_type = item.get("type")
@@ -457,6 +517,28 @@ def build_graph(args):
             continue
         if item_type == "resource":
             resources.setdefault(item["resource_key"], {}).setdefault(trace_id, item)
+            continue
+        if item_type == "schedule":
+            if "sched_hex" not in item:
+                raise ValueError(
+                    "graph build needs schedule bytes; run dump with --include-schedule"
+                )
+            key = "%s|%s" % (item["syscall_name"], item["path"])
+            if key not in schedule_candidates:
+                schedule_candidates[key] = {
+                    "key": key,
+                    "trace_id": trace_id,
+                    "msg_id": item["msg_id"],
+                    "call_index": item["call_index"],
+                    "thread_id": item["thread_id"],
+                    "syscall_no": item["syscall_no"],
+                    "syscall_name": item["syscall_name"],
+                    "path": item["path"],
+                    "result": item["result"],
+                    "sched_len": item["sched_len"],
+                    "sched_sha256": item["sched_sha256"],
+                    "sched_hex": item["sched_hex"],
+                }
             continue
         if item_type != "message" or item.get("direction") != "inbound":
             continue
@@ -522,10 +604,14 @@ def build_graph(args):
             "candidate_payload_count": sum(
                 len(group["candidates"]) for group in graph_candidates
             ),
+            "schedule_candidate_count": len(schedule_candidates),
         },
         "traces": traces,
         "resources": resources,
         "candidate_groups": graph_candidates,
+        "schedule_candidates": [
+            schedule_candidates[key] for key in sorted(schedule_candidates)
+        ][: args.max_schedule_candidates],
     }
     print(json.dumps(graph, indent=2, sort_keys=True))
 
@@ -549,6 +635,11 @@ def main(argv=None):
         action="store_true",
         help="include a summary JSONL row before resources/messages",
     )
+    dump.add_argument(
+        "--include-schedule",
+        action="store_true",
+        help="include white-listed raw syscall schedule rows for M3",
+    )
     dump.set_defaults(func=dump_trace)
 
     build = subparsers.add_parser("build", help="merge JSONL dumps into graph JSON")
@@ -564,6 +655,12 @@ def main(argv=None):
         type=int,
         default=64,
         help="maximum payload variants stored per candidate group",
+    )
+    build.add_argument(
+        "--max-schedule-candidates",
+        type=int,
+        default=256,
+        help="maximum white-listed syscall schedule candidates stored",
     )
     build.set_defaults(func=build_graph)
 
