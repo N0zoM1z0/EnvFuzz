@@ -1,0 +1,182 @@
+{
+  "nograph": {
+    "abort_file_count": {
+      "max": 0,
+      "mean": 0,
+      "min": 0,
+      "sum": 0
+    },
+    "crash_file_count": {
+      "max": 0,
+      "mean": 0,
+      "min": 0,
+      "sum": 0
+    },
+    "frontier": {
+      "max": 0,
+      "mean": 0,
+      "min": 0,
+      "sum": 0
+    },
+    "frontier_log_lines": {
+      "max": 417,
+      "mean": 389.2,
+      "min": 367,
+      "sum": 1946
+    },
+    "graph": {
+      "max": 0,
+      "mean": 0,
+      "min": 0,
+      "sum": 0
+    },
+    "hang_file_count": {
+      "max": 28,
+      "mean": 23.6,
+      "min": 20,
+      "sum": 118
+    },
+    "n": 5,
+    "outs_seen": {
+      "max": 9,
+      "mean": 8,
+      "min": 5,
+      "sum": 40
+    },
+    "patch_count": {
+      "max": 145,
+      "mean": 135.8,
+      "min": 128,
+      "sum": 679
+    },
+    "returncodes": [
+      0
+    ],
+    "seconds": {
+      "max": 30.652,
+      "mean": 30.6092,
+      "min": 30.522,
+      "sum": 153.046
+    }
+  },
+  "wayland_bus_graph": {
+    "abort_file_count": {
+      "max": 0,
+      "mean": 0,
+      "min": 0,
+      "sum": 0
+    },
+    "crash_file_count": {
+      "max": 0,
+      "mean": 0,
+      "min": 0,
+      "sum": 0
+    },
+    "frontier": {
+      "max": 0,
+      "mean": 0,
+      "min": 0,
+      "sum": 0
+    },
+    "frontier_log_lines": {
+      "max": 350,
+      "mean": 312.4,
+      "min": 257,
+      "sum": 1562
+    },
+    "graph": {
+      "max": 396,
+      "mean": 389,
+      "min": 374,
+      "sum": 1945
+    },
+    "hang_file_count": {
+      "max": 19,
+      "mean": 19,
+      "min": 19,
+      "sum": 95
+    },
+    "n": 5,
+    "outs_seen": {
+      "max": 6,
+      "mean": 4.8,
+      "min": 3,
+      "sum": 24
+    },
+    "patch_count": {
+      "max": 132,
+      "mean": 129.6,
+      "min": 128,
+      "sum": 648
+    },
+    "returncodes": [
+      0
+    ],
+    "seconds": {
+      "max": 30.669,
+      "mean": 30.5988,
+      "min": 30.537,
+      "sum": 152.994
+    }
+  },
+  "wayland_only_graph": {
+    "abort_file_count": {
+      "max": 0,
+      "mean": 0,
+      "min": 0,
+      "sum": 0
+    },
+    "crash_file_count": {
+      "max": 0,
+      "mean": 0,
+      "min": 0,
+      "sum": 0
+    },
+    "frontier": {
+      "max": 0,
+      "mean": 0,
+      "min": 0,
+      "sum": 0
+    },
+    "frontier_log_lines": {
+      "max": 418,
+      "mean": 391.8,
+      "min": 370,
+      "sum": 1959
+    },
+    "graph": {
+      "max": 14,
+      "mean": 10.4,
+      "min": 8,
+      "sum": 52
+    },
+    "hang_file_count": {
+      "max": 28,
+      "mean": 23.6,
+      "min": 21,
+      "sum": 118
+    },
+    "n": 5,
+    "outs_seen": {
+      "max": 9,
+      "mean": 7.4,
+      "min": 1,
+      "sum": 37
+    },
+    "patch_count": {
+      "max": 145,
+      "mean": 137.4,
+      "min": 132,
+      "sum": 687
+    },
+    "returncodes": [
+      0
+    ],
+    "seconds": {
+      "max": 30.671,
+      "mean": 30.5808,
+      "min": 30.526,
+      "sum": 152.904
+    }
+  }
+}

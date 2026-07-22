@@ -1,0 +1,483 @@
+{
+  "build": {
+    "exclude_resource_regex": [
+      "/usr/lib.*/(locale|gconv)|/usr/share/locale"
+    ],
+    "include_resource_regex": [],
+    "input_count": 3,
+    "max_variants": 64,
+    "min_variants": 1
+  },
+  "candidate_groups": [
+    {
+      "candidates": [
+        {
+          "msg_id": 15,
+          "ordinal": 1,
+          "payload_hex": "23204c6f63616c65206e616d6520616c696173206461746120626173652e0a2320436f707972696768742028432920313939362d32303234204672656520536f66747761726520466f756e646174696f6e2c20496e632e0a230a2320546869732070726f6772616d206973206672656520736f6674776172653b20796f752063616e2072656469737472696275746520697420616e642f6f72206d6f646966790a2320697420756e64657220746865207465726d73206f662074686520474e552047656e6572616c205075626c6963204c6963656e7365206173207075626c69736865642062790a2320746865204672656520536f66747761726520466f756e646174696f6e3b206569746865722076657273696f6e20322c206f722028617420796f7572206f7074696f6e290a2320616e79206c617465722076657273696f6e2e0a230a2320546869732070726f6772616d20697320646973747269627574656420696e2074686520686f706520746861742069742077696c6c2062652075736566756c2c0a232062757420574954484f555420414e592057415252414e54593b20776974686f7574206576656e2074686520696d706c6965642077617272616e7479206f660a23204d45524348414e544142494c495459206f72204649544e45535320464f52204120504152544943554c415220505552504f53452e2020536565207468650a2320474e552047656e6572616c205075626c6963204c6963656e736520666f72206d6f72652064657461696c732e0a230a2320596f752073686f756c642068617665207265636569766564206120636f7079206f662074686520474e552047656e6572616c205075626c6963204c6963656e73650a2320616c6f6e67207769746820746869732070726f6772616d3b206966206e6f742c20736565203c68747470733a2f2f7777772e676e752e6f72672f6c6963656e7365732f3e2e0a0a232054686520666f726d6174206f6620746869732066696c65206973207468652073616d6520617320666f722074686520636f72726573706f6e64696e672066696c65206f660a232074686520582057696e646f772053797374656d2c207768696368206e6f726d616c6c792063616e20626520666f756e6420696e0a23092f7573722f6c69622f5831312f6c6f63616c652f6c6f63616c652e616c6961730a2320412073696e676c65206c696e6520636f6e7461696e732074776f206669656c64733a20616e20616c69617320616e64206120737562737469747574696f6e2076616c75652e0a2320416c6c20656e747269657320617265206361736520696e646570656e64656e742e0a0a23204e6f74653a20546869732066696c65206973206f62736f6c65746520616e64206973206b6570742061726f756e6420666f72207468652074696d65206265696e6720666f720a23206261636b7761726420636f6d7061746962696c6974792e20204e6f626f64792073686f756c642072656c79206f6e20746865206e616d657320646566696e656420686572652e0a23204c6f63616c65732073686f756c6420616c77617973206265207370656369666965642062792074686569722066756c6c206e616d652e0a0a23204e6f74653a20546869732066696c65207573656420746f20636f6e7461696e2074686520666f6c6c6f77696e67206c696e65733a0a2309626f6b6d61616c09096e625f4e4f2e49534f2d383835392d310a23096672616e632c6169730966725f46522e49534f2d383835392d310a23206578636570742074686174207468652022616122207761732061637475616c6c7920746865206279746520275c30784535272028746865204c6174696e2d310a2320656e636f64696e6720666f7220552b30304535204c4154494e20534d414c4c204c4554544552204120574954482052494e472041424f56452920616e64207468650a232022632c22207761732061637475616c6c7920746865206279746520275c784537272028746865204c6174696e2d3120656e636f64696e6720666f7220552b303045370a23204c4154494e20534d414c4c204c45545445522043205749544820434544494c4c41292e20205468657365206c696e657320776572652072656d6f7665640a23206265636175736520746865792063617573656420276c6f63616c65202d612720746f206f7574707574207465787420656e636f64656420696e204c6174696e2d312c0a232077686963682062726f6b65206170706c69636174696f6e7320696e205554462d38206c6f63616c65732e20205365653a0a232068747470733a2f2f736f75726365776172652e6f72672f6275677a696c6c612f73686f775f6275672e6367693f69643d31383431320a0a626f6b6d616c09096e625f4e4f2e49534f2d383835392d310a636174616c616e090963615f45532e49534f2d383835392d310a63726f617469616e0968725f48522e49534f2d383835392d320a637a656368090963735f435a2e49534f2d383835392d320a64616e6973682020202020202020202064615f444b2e49534f2d383835392d310a64616e736b090964615f444b2e49534f2d383835392d310a64657574736368090964655f44452e49534f2d383835392d310a647574636809096e6c5f4e4c2e49534f2d383835392d310a6565737469090965745f45452e49534f2d383835392d31350a6573746f6e69616e0965745f45452e49534f2d383835392d31350a66696e6e69736820202020202020202066695f46492e49534f2d383835392d310a6672656e6368090966725f46522e49534f2d383835392d310a67616c65676f0909676c5f45532e49534f2d383835392d310a67616c696369616e09676c5f45532e49534f2d383835392d310a6765726d616e090964655f44452e49534f2d383835392d310a677265656b2020202020202020202020656c5f47522e49534f2d383835392d370a6865627265772020202020202020202068655f494c2e49534f2d383835392d380a6872766174736b690968725f48522e49534f2d383835392d320a68756e67617269616e2020202020202068755f48552e49534f2d383835392d320a6963656c616e6469632020202020202069735f49532e49534f2d383835392d310a6974616c69616e20202020202020202069745f49542e49534f2d383835392d310a6a6170616e657365096a615f4a502e6575634a500a6a6170616e6573652e657563096a615f4a502e6575634a500a6a615f4a5009096a615f4a502e6575634a500a6a615f4a502e756a6973096a615f4a502e6575634a500a6a6170616e6573652e736a6973096a615f4a502e534a49530a6b6f7265616e09096b6f5f4b522e6575634b520a6b6f7265616e2e65756320096b6f5f4b522e6575634b520a6b6f5f4b5209096b6f5f4b522e6575634b520a6c69746875616e69616e2020202020206c745f4c542e49534f2d383835392d31330a6e6f5f4e4f09096e625f4e4f2e49534f2d383835392d310a6e6f5f4e4f2e49534f2d383835392d31206e625f4e4f2e49534f2d383835392d310a6e6f7277656769616e202020202020206e625f4e4f2e49534f2d383835392d310a6e796e6f72736b09096e6e5f4e4f2e49534f2d383835392d310a706f6c69736820202020202020202020706c5f504c2e49534f2d383835392d320a706f727475677565736520202020202070745f50542e49534f2d383835392d310a726f6d616e69616e2020202020202020726f5f524f2e49534f2d383835392d320a7275737369616e20202020202020202072755f52552e4b4f49382d520a736c6f76616b20202020202020202020736b5f534b2e49534f2d383835392d320a736c6f76656e65202020202020202020736c5f53492e49534f2d383835392d320a736c6f76656e69616e20202020202020736c5f53492e49534f2d383835392d320a7370616e69736820202020202020202065735f45532e49534f2d383835392d310a7377656469736820202020202020202073765f53452e49534f2d383835392d310a74686169090974685f54482e5449532d3632300a7475726b69736820202020202020202074725f54522e49534f2d383835392d390a",
+          "payload_len": 2996,
+          "payload_sha256": "c22cc401a22cb37b7f1c8766035bd4d599fa2d2da9d20bdd85be67711265d02b",
+          "resource_class": "file",
+          "resource_key": "/etc/locale.alias",
+          "resource_name": "/etc/locale.alias",
+          "trace_id": "nano-ttyfile"
+        }
+      ],
+      "key": "file|/etc/locale.alias|2996",
+      "payload_len": 2996,
+      "resource_class": "file",
+      "resource_key": "/etc/locale.alias",
+      "variant_count": 1
+    },
+    {
+      "candidates": [
+        {
+          "msg_id": 216,
+          "ordinal": 1,
+          "payload_hex": "616c70686120626574612067616d6d610a6c696e652074776f207769746820776f7264730a7365617263682074617267657420686572650a73796d626f6c73205b5d7b7d28293c3e0a",
+          "payload_len": 73,
+          "payload_sha256": "aa4ebfe5bd2453581db8918ddea87a5d64674bc2350fec615a09662d4b632222",
+          "resource_class": "file",
+          "resource_key": "/home/pentester/Project/EnvFuzz/nano-work/nano-self-seed.txt",
+          "resource_name": "/home/pentester/Project/EnvFuzz/nano-work/nano-self-seed.txt",
+          "trace_id": "nano-ttyfile"
+        }
+      ],
+      "key": "file|/home/pentester/Project/EnvFuzz/nano-work/nano-self-seed.txt|73",
+      "payload_len": 73,
+      "resource_class": "file",
+      "resource_key": "/home/pentester/Project/EnvFuzz/nano-work/nano-self-seed.txt",
+      "variant_count": 1
+    },
+    {
+      "candidates": [
+        {
+          "msg_id": 126,
+          "ordinal": 1,
+          "payload_hex": "1a013d0026000f009d011006787465726d7c787465726d2d64656269616e7c787465726d207465726d696e616c20656d756c61746f722028582057696e646f772053797374656d2900000100000100000001000000000101000000000000000100000100000100000000000000000100500008001800ffffffffffffffffffffffffffffffffffffffff08004000000004000600080019001e0026002a002e00ffff39004a004c0050005700ffff59006600ffff6a006e0078007c00ffffffff8000840089008e00ffffa000a500aa00ffffaf00b400b900be00c700cb00d200ffffe400e900ef00f500ffffffffffff0701ffffffffffff1901ffff1d01ffffffffffff1f01ffff2401ffffffffffffffff28012c01320136013a013e0144014a01500156015c016001ffff6501ffff69016e01730177017e01ffff850189019101ffffffffffffffffffffffffffffffffffffffffffff9901a201ab01ffffae01b701c001c901d201db01e401ed01f601ff01ffffffffffff08020c02110216022a022d02ffffffff3f0242024d02500252025502b202ffffb502ffffffffffffffffb702bb02bf02c302c702ffffffffcb02ffff0003ffffffff04030a03ffffffffffffffffffff1003ffffffffffffffffffff14031803ffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff1c03ffffffff2303ffffffffffffffff2a0331033803ffffffff3f03ffff4603ffffffffffff4d03ffffffffffffffffffff54035a03600367036e0375037c0384038c0394039c03a403ac03b403bc03c303ca03d103d803e003e803f003f80300040804100418041f0426042d0434043c0444044c0454045c0464046c0474047b048204890490049804a004a804b004b804c004c804d004d704de04e504ea04fffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff104fc04010514051805ffffffffffffffff21056705ffffffffffffffffffffffffffffad05ffffffffffffffffffffffffffffffffffffb205ffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffb805c905ffffffffffffffffffffffffffffffffffffffffffffdb05ffffffffffffdf05e905fffffffffffffffffffffffffffff305ffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff0a060d061b5b5a0007000d001b5b256925703125643b257032256472001b5b3367001b5b481b5b324a001b5b4b001b5b4a001b5b2569257031256447001b5b256925703125643b257032256448000a001b5b48001b5b3f32356c0008001b5b3f31326c1b5b3f323568001b5b43001b5b41001b5b3f31323b323568001b5b50001b5b4d001b2830001b5b356d001b5b316d001b5b3f31303439681b5b32323b303b3074001b5b326d001b5b3468001b5b386d001b5b376d001b5b376d001b5b346d001b5b257031256458001b2842001b28421b5b6d001b5b3f313034396c1b5b32333b303b3074001b5b346c001b5b32376d001b5b32346d001b5b3f3568243c3130302f3e1b5b3f356c001b5b21701b5b3f333b346c1b5b346c1b3e001b5b4c007f001b5b337e001b4f42001b4f50001b5b32317e001b4f51001b4f52001b4f53001b5b31357e001b5b31377e001b5b31387e001b5b31397e001b5b32307e001b4f48001b5b327e001b4f44001b5b367e001b5b357e001b4f43001b5b313b3242001b5b313b3241001b4f41001b5b3f316c1b3e001b5b3f31681b3d001b5b3f313033346c001b5b3f3130333468001b45001b5b257031256450001b5b25703125644d001b5b257031256442001b5b257031256440001b5b257031256453001b5b25703125644c001b5b257031256444001b5b257031256443001b5b257031256454001b5b257031256441001b5b69001b5b3469001b5b35690025703125631b5b257032257b317d252d256462001b63001b5b21701b5b3f333b346c1b5b346c1b3e001b38001b5b2569257031256464001b37000a001b4d00253f25703925741b283025651b2842253b1b5b30253f25703625743b31253b253f25703525743b32253b253f25703225743b34253b253f257031257033257c25743b37253b253f25703425743b35253b253f25703725743b38253b6d001b480009001b4f77001b4f79001b4f75001b4f71001b4f7300606061616666676769696a6a6b6b6c6c6d6d6e6e6f6f70707171727273737474757576767777787879797a7a7b7b7c7c7d7d7e7e001b5b5a001b5b3f3768001b5b3f376c001b4f45001b4f46001b4f4d001b5b333b327e001b5b313b3246001b5b313b3248001b5b323b327e001b5b313b3244001b5b363b327e001b5b353b327e001b5b313b3243001b5b32337e001b5b32347e001b5b313b3250001b5b313b3251001b5b313b3252001b5b313b3253001b5b31353b327e001b5b31373b327e001b5b31383b327e001b5b31393b327e001b5b32303b327e001b5b32313b327e001b5b32333b327e001b5b32343b327e001b5b313b3550001b5b313b3551001b5b313b3552001b5b313b3553001b5b31353b357e001b5b31373b357e001b5b31383b357e001b5b31393b357e001b5b32303b357e001b5b32313b357e001b5b32333b357e001b5b32343b357e001b5b313b3650001b5b313b3651001b5b313b3652001b5b313b3653001b5b31353b367e001b5b31373b367e001b5b31383b367e001b5b31393b367e001b5b32303b367e001b5b32313b367e001b5b32333b367e001b5b32343b367e001b5b313b3350001b5b313b3351001b5b313b3352001b5b313b3353001b5b31353b337e001b5b31373b337e001b5b31383b337e001b5b31393b337e001b5b32303b337e001b5b32313b337e001b5b32333b337e001b5b32343b337e001b5b313b3450001b5b313b3451001b5b313b3452001b5b314b001b5b3f36396c001b5b256925643b256452001b5b366e001b5b3f255b3b303132333435363738395d63001b5b63001b5b33393b34396d001b5b33253f257031257b317d253d2574342565257031257b337d253d2574362565257031257b347d253d2574312565257031257b367d253d25743325652570312564253b6d001b5b34253f257031257b317d253d2574342565257031257b337d253d2574362565257031257b347d253d2574312565257031257b367d253d25743325652570312564253b6d001b5b336d001b5b32336d001b5b3f3639681b5b2569257031256473001b5b3f3639681b5b25693b257031256473001b5b3c001b5b3325703125646d001b5b3425703125646d001b5b3f3639681b5b256925703125643b257032256473001b6c001b6d00030000005600af00530401010100000009001200190025002a003c0043004a004f0055005f007f0085008e0097009e00a500ac00b300ba00c100c800cf00d600dd00e400eb00f200f900000107010e0115011c0123012a01310138013f0146014d0154015b0162016901700177017e0185018c0193019a01a101a801af01b601bd01c401cb01d201d901e001e701ee01f501fc01030207020b020f02130217021b021f02230227022b022f02330237023b0241025a025f02840200000300060009000c000f001200150018001b001e002100240027002a002d003000330036003b00400045004a004f00530058005d00620067006c00720078007e0084008a00900096009c00a200a800ad00b200b700bc00c100c700cd00d300d900df00e500eb00f100f700fd00030109010f0115011b01210127012d01330139013d01420147014c01510156015a015e01620166016a01700176017c01820188018e01940199019f01a401a701ac01af011b5b3f323030346c001b5b3f3230303468001b5d31313207001b5d31323b257031257307001b5b334a001b5d35323b25703125733b257032257307001b5b3230317e001b5b3230307e001b5b3e63001b5b322071001b5b25703125642071001b5b3f313030363b31303030253f257031257b317d253d25746825656c253b001b5b3e3071001b5b3f313030346c001b5b3f3130303468001b5b333b337e001b5b333b347e001b5b333b357e001b5b333b367e001b5b333b377e001b5b313b3242001b5b313b3342001b5b313b3442001b5b313b3542001b5b313b3642001b5b313b3742001b5b313b3346001b5b313b3446001b5b313b3546001b5b313b3646001b5b313b3746001b5b313b3348001b5b313b3448001b5b313b3548001b5b313b3648001b5b313b3748001b5b323b337e001b5b323b347e001b5b323b357e001b5b323b367e001b5b323b377e001b5b313b3344001b5b313b3444001b5b313b3544001b5b313b3644001b5b313b3744001b5b363b337e001b5b363b347e001b5b363b357e001b5b363b367e001b5b363b377e001b5b353b337e001b5b353b347e001b5b353b357e001b5b353b367e001b5b353b377e001b5b313b3343001b5b313b3443001b5b313b3543001b5b313b3643001b5b313b3743001b5b313b3241001b5b313b3341001b5b313b3441001b5b313b3541001b5b313b3641001b5b313b3741001b4f78001b4f74001b4f76001b4f72001b4f45001b4f6b001b4f6c001b4f6f001b4f6e001b4f6a001b4f6d001b4f70001b5b49001b5b4f001b5b32396d001b5c5b34313b5b312d365d5b302d395d5b302d395d3b3063001b5b396d001b5b3c256925703325643b25703125643b25703225643b253f25703425744d25656d253b001b503e5c7c585465726d5c285b312d395d5b302d395d2b5c291b5c5c004158005846005854004244004245004372004373004533004d7300504500505300525600536500537300584d005852006664006665006b444333006b444334006b444335006b444336006b444337006b444e006b444e33006b444e34006b444e35006b444e36006b444e37006b454e4433006b454e4434006b454e4435006b454e4436006b454e4437006b484f4d33006b484f4d34006b484f4d35006b484f4d36006b484f4d37006b494333006b494334006b494335006b494336006b494337006b4c465433006b4c465434006b4c465435006b4c465436006b4c465437006b4e585433006b4e585434006b4e585435006b4e585436006b4e585437006b50525633006b50525634006b50525635006b50525636006b50525637006b52495433006b52495434006b52495435006b52495436006b52495437006b5550006b555033006b555034006b555035006b555036006b555037006b6132006b6231006b6233006b6332006b7035006b70414444006b70434d41006b70444956006b70444f54006b704d554c006b70535542006b705a524f006b78494e006b784f555400726d787800727600736d787800786d00787200",
+          "payload_len": 3991,
+          "payload_sha256": "83fc979026186c5134f343b94793f1fbc58d845de1d9fbad4351ac33e3ddfa97",
+          "resource_class": "file",
+          "resource_key": "/usr/share/terminfo/x/xterm",
+          "resource_name": "/usr/share/terminfo/x/xterm",
+          "trace_id": "nano-ttyfile"
+        }
+      ],
+      "key": "file|/usr/share/terminfo/x/xterm|3991",
+      "payload_len": 3991,
+      "resource_class": "file",
+      "resource_key": "/usr/share/terminfo/x/xterm",
+      "variant_count": 1
+    },
+    {
+      "candidates": [
+        {
+          "msg_id": 244,
+          "ordinal": 1,
+          "payload_hex": "15",
+          "payload_len": 1,
+          "payload_sha256": "2f0fd1e89b8de1d57292742ec380ea47066e307ad645f5bc3adad8a06ff58608",
+          "resource_class": "stdio",
+          "resource_key": "stdio://stdin",
+          "resource_name": "stdio://stdin",
+          "trace_id": "nano-ttyfile"
+        },
+        {
+          "msg_id": 289,
+          "ordinal": 2,
+          "payload_hex": "69",
+          "payload_len": 1,
+          "payload_sha256": "de7d1b721a1e0632b7cf04edf5032c8ecffa9f9a08492152b926f1a5a7e765d7",
+          "resource_class": "stdio",
+          "resource_key": "stdio://stdin",
+          "resource_name": "stdio://stdin",
+          "trace_id": "nano-ttyfile"
+        },
+        {
+          "msg_id": 299,
+          "ordinal": 3,
+          "payload_hex": "6e",
+          "payload_len": 1,
+          "payload_sha256": "1b16b1df538ba12dc3f97edbb85caa7050d46c148134290feba80f8236c83db9",
+          "resource_class": "stdio",
+          "resource_key": "stdio://stdin",
+          "resource_name": "stdio://stdin",
+          "trace_id": "nano-ttyfile"
+        },
+        {
+          "msg_id": 304,
+          "ordinal": 4,
+          "payload_hex": "73",
+          "payload_len": 1,
+          "payload_sha256": "043a718774c572bd8a25adbeb1bfcd5c0256ae11cecf9f9c3f925d0e52beaf89",
+          "resource_class": "stdio",
+          "resource_key": "stdio://stdin",
+          "resource_name": "stdio://stdin",
+          "trace_id": "nano-ttyfile"
+        },
+        {
+          "msg_id": 309,
+          "ordinal": 5,
+          "payload_hex": "65",
+          "payload_len": 1,
+          "payload_sha256": "3f79bb7b435b05321651daefd374cdc681dc06faa65e374e38337b88ca046dea",
+          "resource_class": "stdio",
+          "resource_key": "stdio://stdin",
+          "resource_name": "stdio://stdin",
+          "trace_id": "nano-ttyfile"
+        },
+        {
+          "msg_id": 314,
+          "ordinal": 6,
+          "payload_hex": "72",
+          "payload_len": 1,
+          "payload_sha256": "454349e422f05297191ead13e21d3db520e5abef52055e4964b82fb213f593a1",
+          "resource_class": "stdio",
+          "resource_key": "stdio://stdin",
+          "resource_name": "stdio://stdin",
+          "trace_id": "nano-ttyfile"
+        },
+        {
+          "msg_id": 319,
+          "ordinal": 7,
+          "payload_hex": "74",
+          "payload_len": 1,
+          "payload_sha256": "e3b98a4da31a127d4bde6e43033f66ba274cab0eb7eb1c70ec41402bf6273dd8",
+          "resource_class": "stdio",
+          "resource_key": "stdio://stdin",
+          "resource_name": "stdio://stdin",
+          "trace_id": "nano-ttyfile"
+        },
+        {
+          "msg_id": 329,
+          "ordinal": 9,
+          "payload_hex": "64",
+          "payload_len": 1,
+          "payload_sha256": "18ac3e7343f016890c510e93f935261169d9e3f565436429830faf0934f4f8e4",
+          "resource_class": "stdio",
+          "resource_key": "stdio://stdin",
+          "resource_name": "stdio://stdin",
+          "trace_id": "nano-ttyfile"
+        },
+        {
+          "msg_id": 334,
+          "ordinal": 10,
+          "payload_hex": "20",
+          "payload_len": 1,
+          "payload_sha256": "36a9e7f1c95b82ffb99743e0c5c4ce95d83c9a430aac59f84ef3cbfab6145068",
+          "resource_class": "stdio",
+          "resource_key": "stdio://stdin",
+          "resource_name": "stdio://stdin",
+          "trace_id": "nano-ttyfile"
+        },
+        {
+          "msg_id": 349,
+          "ordinal": 13,
+          "payload_hex": "61",
+          "payload_len": 1,
+          "payload_sha256": "ca978112ca1bbdcafac231b39a23dc4da786eff8147c4e72b9807785afee48bb",
+          "resource_class": "stdio",
+          "resource_key": "stdio://stdin",
+          "resource_name": "stdio://stdin",
+          "trace_id": "nano-ttyfile"
+        },
+        {
+          "msg_id": 369,
+          "ordinal": 17,
+          "payload_hex": "6c",
+          "payload_len": 1,
+          "payload_sha256": "acac86c0e609ca906f632b0e2dacccb2b77d22b0621f20ebece1a4835b93f6f0",
+          "resource_class": "stdio",
+          "resource_key": "stdio://stdin",
+          "resource_name": "stdio://stdin",
+          "trace_id": "nano-ttyfile"
+        },
+        {
+          "msg_id": 389,
+          "ordinal": 21,
+          "payload_hex": "0d",
+          "payload_len": 1,
+          "payload_sha256": "9d1e0e2d9459d06523ad13e28a4093c2316baafe7aec5b25f30eba2e113599c4",
+          "resource_class": "stdio",
+          "resource_key": "stdio://stdin",
+          "resource_name": "stdio://stdin",
+          "trace_id": "nano-ttyfile"
+        },
+        {
+          "msg_id": 408,
+          "ordinal": 22,
+          "payload_hex": "17",
+          "payload_len": 1,
+          "payload_sha256": "8f11b05da785e43e713d03774c6bd3405d99cd3024af334ffd68db663aa37034",
+          "resource_class": "stdio",
+          "resource_key": "stdio://stdin",
+          "resource_name": "stdio://stdin",
+          "trace_id": "nano-ttyfile"
+        },
+        {
+          "msg_id": 444,
+          "ordinal": 26,
+          "payload_hex": "67",
+          "payload_len": 1,
+          "payload_sha256": "cd0aa9856147b6c5b4ff2b7dfee5da20aa38253099ef1b4a64aced233c9afe29",
+          "resource_class": "stdio",
+          "resource_key": "stdio://stdin",
+          "resource_name": "stdio://stdin",
+          "trace_id": "nano-ttyfile"
+        },
+        {
+          "msg_id": 489,
+          "ordinal": 30,
+          "payload_hex": "0b",
+          "payload_len": 1,
+          "payload_sha256": "e7cf46a078fed4fafd0b5e3aff144802b853f8ae459a4f0c14add3314b7cc3a6",
+          "resource_class": "stdio",
+          "resource_key": "stdio://stdin",
+          "resource_name": "stdio://stdin",
+          "trace_id": "nano-ttyfile"
+        },
+        {
+          "msg_id": 532,
+          "ordinal": 32,
+          "payload_hex": "0f",
+          "payload_len": 1,
+          "payload_sha256": "dc0e9c3658a1a3ed1ec94274d8b19925c93e1abb7ddba294923ad9bde30f8cb8",
+          "resource_class": "stdio",
+          "resource_key": "stdio://stdin",
+          "resource_name": "stdio://stdin",
+          "trace_id": "nano-ttyfile"
+        },
+        {
+          "msg_id": 638,
+          "ordinal": 34,
+          "payload_hex": "18",
+          "payload_len": 1,
+          "payload_sha256": "452ba1ddef80246c48be7690193c76c1d61185906be9401014fe14f1be64b74f",
+          "resource_class": "stdio",
+          "resource_key": "stdio://stdin",
+          "resource_name": "stdio://stdin",
+          "trace_id": "nano-ttyfile"
+        }
+      ],
+      "key": "stdio|stdio://stdin|1",
+      "payload_len": 1,
+      "resource_class": "stdio",
+      "resource_key": "stdio://stdin",
+      "variant_count": 17
+    }
+  ],
+  "format": "envgraph-v0",
+  "resources": {
+    "/etc/locale.alias": {
+      "nano-input": {
+        "message_count": 2,
+        "port": 10004,
+        "resource_class": "file",
+        "resource_key": "/etc/locale.alias",
+        "resource_name": "/etc/locale.alias",
+        "trace_id": "nano-input",
+        "type": "resource"
+      },
+      "nano-self": {
+        "message_count": 2,
+        "port": 10004,
+        "resource_class": "file",
+        "resource_key": "/etc/locale.alias",
+        "resource_name": "/etc/locale.alias",
+        "trace_id": "nano-self",
+        "type": "resource"
+      },
+      "nano-ttyfile": {
+        "message_count": 2,
+        "port": 10004,
+        "resource_class": "file",
+        "resource_key": "/etc/locale.alias",
+        "resource_name": "/etc/locale.alias",
+        "trace_id": "nano-ttyfile",
+        "type": "resource"
+      }
+    },
+    "/home/pentester/Project/EnvFuzz/nano-work/nano-self-seed.txt": {
+      "nano-input": {
+        "message_count": 3,
+        "port": 10020,
+        "resource_class": "file",
+        "resource_key": "/home/pentester/Project/EnvFuzz/nano-work/nano-self-seed.txt",
+        "resource_name": "/home/pentester/Project/EnvFuzz/nano-work/nano-self-seed.txt",
+        "trace_id": "nano-input",
+        "type": "resource"
+      },
+      "nano-self": {
+        "message_count": 3,
+        "port": 10020,
+        "resource_class": "file",
+        "resource_key": "/home/pentester/Project/EnvFuzz/nano-work/nano-self-seed.txt",
+        "resource_name": "/home/pentester/Project/EnvFuzz/nano-work/nano-self-seed.txt",
+        "trace_id": "nano-self",
+        "type": "resource"
+      },
+      "nano-ttyfile": {
+        "message_count": 3,
+        "port": 10020,
+        "resource_class": "file",
+        "resource_key": "/home/pentester/Project/EnvFuzz/nano-work/nano-self-seed.txt",
+        "resource_name": "/home/pentester/Project/EnvFuzz/nano-work/nano-self-seed.txt",
+        "trace_id": "nano-ttyfile",
+        "type": "resource"
+      }
+    },
+    "/usr/share/terminfo/x/xterm": {
+      "nano-input": {
+        "message_count": 2,
+        "port": 10019,
+        "resource_class": "file",
+        "resource_key": "/usr/share/terminfo/x/xterm",
+        "resource_name": "/usr/share/terminfo/x/xterm",
+        "trace_id": "nano-input",
+        "type": "resource"
+      },
+      "nano-self": {
+        "message_count": 2,
+        "port": 10019,
+        "resource_class": "file",
+        "resource_key": "/usr/share/terminfo/x/xterm",
+        "resource_name": "/usr/share/terminfo/x/xterm",
+        "trace_id": "nano-self",
+        "type": "resource"
+      },
+      "nano-ttyfile": {
+        "message_count": 2,
+        "port": 10019,
+        "resource_class": "file",
+        "resource_key": "/usr/share/terminfo/x/xterm",
+        "resource_name": "/usr/share/terminfo/x/xterm",
+        "trace_id": "nano-ttyfile",
+        "type": "resource"
+      }
+    },
+    "stdio://stderr": {
+      "nano-input": {
+        "message_count": 0,
+        "port": 10002,
+        "resource_class": "stdio",
+        "resource_key": "stdio://stderr",
+        "resource_name": "stdio://stderr",
+        "trace_id": "nano-input",
+        "type": "resource"
+      },
+      "nano-self": {
+        "message_count": 0,
+        "port": 10002,
+        "resource_class": "stdio",
+        "resource_key": "stdio://stderr",
+        "resource_name": "stdio://stderr",
+        "trace_id": "nano-self",
+        "type": "resource"
+      },
+      "nano-ttyfile": {
+        "message_count": 0,
+        "port": 10002,
+        "resource_class": "stdio",
+        "resource_key": "stdio://stderr",
+        "resource_name": "stdio://stderr",
+        "trace_id": "nano-ttyfile",
+        "type": "resource"
+      }
+    },
+    "stdio://stdin": {
+      "nano-input": {
+        "message_count": 34,
+        "port": 10000,
+        "resource_class": "stdio",
+        "resource_key": "stdio://stdin",
+        "resource_name": "stdio://stdin",
+        "trace_id": "nano-input",
+        "type": "resource"
+      },
+      "nano-self": {
+        "message_count": 34,
+        "port": 10000,
+        "resource_class": "stdio",
+        "resource_key": "stdio://stdin",
+        "resource_name": "stdio://stdin",
+        "trace_id": "nano-self",
+        "type": "resource"
+      },
+      "nano-ttyfile": {
+        "message_count": 34,
+        "port": 10000,
+        "resource_class": "stdio",
+        "resource_key": "stdio://stdin",
+        "resource_name": "stdio://stdin",
+        "trace_id": "nano-ttyfile",
+        "type": "resource"
+      }
+    },
+    "stdio://stdout": {
+      "nano-input": {
+        "message_count": 64,
+        "port": 10001,
+        "resource_class": "stdio",
+        "resource_key": "stdio://stdout",
+        "resource_name": "stdio://stdout",
+        "trace_id": "nano-input",
+        "type": "resource"
+      },
+      "nano-self": {
+        "message_count": 64,
+        "port": 10001,
+        "resource_class": "stdio",
+        "resource_key": "stdio://stdout",
+        "resource_name": "stdio://stdout",
+        "trace_id": "nano-self",
+        "type": "resource"
+      },
+      "nano-ttyfile": {
+        "message_count": 64,
+        "port": 10001,
+        "resource_class": "stdio",
+        "resource_key": "stdio://stdout",
+        "resource_name": "stdio://stdout",
+        "trace_id": "nano-ttyfile",
+        "type": "resource"
+      }
+    }
+  },
+  "schedule_candidates": [],
+  "summary": {
+    "candidate_group_count": 4,
+    "candidate_payload_count": 20,
+    "filtered_message_count": 36,
+    "filtered_resource_count": 45,
+    "filtered_schedule_count": 0,
+    "resource_key_count": 6,
+    "schedule_candidate_count": 0,
+    "trace_count": 3
+  },
+  "traces": {
+    "nano-input": {
+      "message_count": 117,
+      "resource_count": 22,
+      "source": "out-nano-input/RECORD.pcap.gz",
+      "syscall_count": 551,
+      "trace_id": "nano-input",
+      "type": "summary"
+    },
+    "nano-self": {
+      "message_count": 117,
+      "resource_count": 22,
+      "source": "out-nano-self/RECORD.pcap.gz",
+      "syscall_count": 551,
+      "trace_id": "nano-self",
+      "type": "summary"
+    },
+    "nano-ttyfile": {
+      "message_count": 117,
+      "resource_count": 22,
+      "source": "out-nano-ttyfile/RECORD.pcap.gz",
+      "syscall_count": 551,
+      "trace_id": "nano-ttyfile",
+      "type": "summary"
+    }
+  }
+}

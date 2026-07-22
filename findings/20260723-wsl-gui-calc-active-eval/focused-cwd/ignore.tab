@@ -1,0 +1,7 @@
+/*              # Focus GUI calculator campaign on socket/session resources
+netlink://*     # Structured input
+pipe://*        # Self-pipe
+event://*       # Special fd
+epoll://*       # Special fd
+memfd://*       # Graphics shared-memory blobs
+stdio://*       # Warnings/logging

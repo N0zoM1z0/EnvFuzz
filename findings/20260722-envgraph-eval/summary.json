@@ -1,0 +1,818 @@
+{
+  "bc_real_cli/improved_graph": {
+    "abort_file_count": {
+      "max": 0,
+      "mean": 0,
+      "min": 0,
+      "sum": 0
+    },
+    "crash_file_count": {
+      "max": 0,
+      "mean": 0,
+      "min": 0,
+      "sum": 0
+    },
+    "frontier": {
+      "max": 816,
+      "mean": 799.6,
+      "min": 786,
+      "sum": 3998
+    },
+    "frontier_log_lines": {
+      "max": 14,
+      "mean": 12,
+      "min": 10,
+      "sum": 60
+    },
+    "graph": {
+      "max": 2203,
+      "mean": 2194,
+      "min": 2185,
+      "sum": 10970
+    },
+    "hang_file_count": {
+      "max": 0,
+      "mean": 0,
+      "min": 0,
+      "sum": 0
+    },
+    "n": 5,
+    "outs_seen": {
+      "max": 15,
+      "mean": 13.4,
+      "min": 12,
+      "sum": 67
+    },
+    "patch_count": {
+      "max": 15,
+      "mean": 13.4,
+      "min": 12,
+      "sum": 67
+    },
+    "queue_patch_count": {
+      "max": 15,
+      "mean": 13.4,
+      "min": 12,
+      "sum": 67
+    },
+    "returncodes": [
+      0
+    ],
+    "seconds": {
+      "max": 1.213,
+      "mean": 1.1722,
+      "min": 1.13,
+      "sum": 5.861
+    },
+    "success_patch_count": {
+      "max": 0,
+      "mean": 0,
+      "min": 0,
+      "sum": 0
+    }
+  },
+  "bc_real_cli/improved_nograph": {
+    "abort_file_count": {
+      "max": 0,
+      "mean": 0,
+      "min": 0,
+      "sum": 0
+    },
+    "crash_file_count": {
+      "max": 0,
+      "mean": 0,
+      "min": 0,
+      "sum": 0
+    },
+    "frontier": {
+      "max": 0,
+      "mean": 0,
+      "min": 0,
+      "sum": 0
+    },
+    "frontier_log_lines": {
+      "max": 1588,
+      "mean": 1526.4,
+      "min": 1444,
+      "sum": 7632
+    },
+    "graph": {
+      "max": 0,
+      "mean": 0,
+      "min": 0,
+      "sum": 0
+    },
+    "hang_file_count": {
+      "max": 0,
+      "mean": 0,
+      "min": 0,
+      "sum": 0
+    },
+    "n": 5,
+    "outs_seen": {
+      "max": 15,
+      "mean": 13.8,
+      "min": 12,
+      "sum": 69
+    },
+    "patch_count": {
+      "max": 15,
+      "mean": 13.8,
+      "min": 12,
+      "sum": 69
+    },
+    "queue_patch_count": {
+      "max": 15,
+      "mean": 13.8,
+      "min": 12,
+      "sum": 69
+    },
+    "returncodes": [
+      0
+    ],
+    "seconds": {
+      "max": 1.353,
+      "mean": 1.3108,
+      "min": 1.261,
+      "sum": 6.554
+    },
+    "success_patch_count": {
+      "max": 0,
+      "mean": 0,
+      "min": 0,
+      "sum": 0
+    }
+  },
+  "bc_real_cli/original": {
+    "abort_file_count": {
+      "max": 0,
+      "mean": 0,
+      "min": 0,
+      "sum": 0
+    },
+    "crash_file_count": {
+      "max": 0,
+      "mean": 0,
+      "min": 0,
+      "sum": 0
+    },
+    "frontier_log_lines": {
+      "max": 0,
+      "mean": 0,
+      "min": 0,
+      "sum": 0
+    },
+    "hang_file_count": {
+      "max": 0,
+      "mean": 0,
+      "min": 0,
+      "sum": 0
+    },
+    "n": 5,
+    "outs_seen": {
+      "max": 16,
+      "mean": 14.8,
+      "min": 14,
+      "sum": 74
+    },
+    "patch_count": {
+      "max": 0,
+      "mean": 0,
+      "min": 0,
+      "sum": 0
+    },
+    "queue_patch_count": {
+      "max": 0,
+      "mean": 0,
+      "min": 0,
+      "sum": 0
+    },
+    "returncodes": [
+      0
+    ],
+    "seconds": {
+      "max": 2.464,
+      "mean": 1.4834,
+      "min": 1.197,
+      "sum": 7.417
+    },
+    "success_patch_count": {
+      "max": 0,
+      "mean": 0,
+      "min": 0,
+      "sum": 0
+    }
+  },
+  "m2_frontier_branch/improved_graph": {
+    "abort_file_count": {
+      "max": 0,
+      "mean": 0,
+      "min": 0,
+      "sum": 0
+    },
+    "crash_file_count": {
+      "max": 0,
+      "mean": 0,
+      "min": 0,
+      "sum": 0
+    },
+    "frontier": {
+      "max": 838,
+      "mean": 800,
+      "min": 751,
+      "sum": 4000
+    },
+    "frontier_log_lines": {
+      "max": 0,
+      "mean": 0,
+      "min": 0,
+      "sum": 0
+    },
+    "graph": {
+      "max": 2519,
+      "mean": 2449.6,
+      "min": 2353,
+      "sum": 12248
+    },
+    "hang_file_count": {
+      "max": 0,
+      "mean": 0,
+      "min": 0,
+      "sum": 0
+    },
+    "n": 5,
+    "outs_seen": {
+      "max": 3,
+      "mean": 3,
+      "min": 3,
+      "sum": 15
+    },
+    "patch_count": {
+      "max": 3,
+      "mean": 3,
+      "min": 3,
+      "sum": 15
+    },
+    "queue_patch_count": {
+      "max": 3,
+      "mean": 3,
+      "min": 3,
+      "sum": 15
+    },
+    "returncodes": [
+      0
+    ],
+    "seconds": {
+      "max": 1.142,
+      "mean": 1.082,
+      "min": 1.048,
+      "sum": 5.41
+    },
+    "success_patch_count": {
+      "max": 1,
+      "mean": 1,
+      "min": 1,
+      "sum": 5
+    }
+  },
+  "m2_frontier_branch/improved_nograph": {
+    "abort_file_count": {
+      "max": 0,
+      "mean": 0,
+      "min": 0,
+      "sum": 0
+    },
+    "crash_file_count": {
+      "max": 0,
+      "mean": 0,
+      "min": 0,
+      "sum": 0
+    },
+    "frontier": {
+      "max": 0,
+      "mean": 0,
+      "min": 0,
+      "sum": 0
+    },
+    "frontier_log_lines": {
+      "max": 0,
+      "mean": 0,
+      "min": 0,
+      "sum": 0
+    },
+    "graph": {
+      "max": 0,
+      "mean": 0,
+      "min": 0,
+      "sum": 0
+    },
+    "hang_file_count": {
+      "max": 0,
+      "mean": 0,
+      "min": 0,
+      "sum": 0
+    },
+    "n": 5,
+    "outs_seen": {
+      "max": 1,
+      "mean": 1,
+      "min": 1,
+      "sum": 5
+    },
+    "patch_count": {
+      "max": 1,
+      "mean": 1,
+      "min": 1,
+      "sum": 5
+    },
+    "queue_patch_count": {
+      "max": 1,
+      "mean": 1,
+      "min": 1,
+      "sum": 5
+    },
+    "returncodes": [
+      0
+    ],
+    "seconds": {
+      "max": 1.128,
+      "mean": 1.0844,
+      "min": 1.052,
+      "sum": 5.422000000000001
+    },
+    "success_patch_count": {
+      "max": 0,
+      "mean": 0,
+      "min": 0,
+      "sum": 0
+    }
+  },
+  "m2_frontier_branch/original": {
+    "abort_file_count": {
+      "max": 0,
+      "mean": 0,
+      "min": 0,
+      "sum": 0
+    },
+    "crash_file_count": {
+      "max": 0,
+      "mean": 0,
+      "min": 0,
+      "sum": 0
+    },
+    "frontier_log_lines": {
+      "max": 0,
+      "mean": 0,
+      "min": 0,
+      "sum": 0
+    },
+    "hang_file_count": {
+      "max": 0,
+      "mean": 0,
+      "min": 0,
+      "sum": 0
+    },
+    "n": 5,
+    "outs_seen": {
+      "max": 1,
+      "mean": 1,
+      "min": 1,
+      "sum": 5
+    },
+    "patch_count": {
+      "max": 0,
+      "mean": 0,
+      "min": 0,
+      "sum": 0
+    },
+    "queue_patch_count": {
+      "max": 0,
+      "mean": 0,
+      "min": 0,
+      "sum": 0
+    },
+    "returncodes": [
+      0
+    ],
+    "seconds": {
+      "max": 1.126,
+      "mean": 1.1132,
+      "min": 1.087,
+      "sum": 5.566
+    },
+    "success_patch_count": {
+      "max": 0,
+      "mean": 0,
+      "min": 0,
+      "sum": 0
+    }
+  },
+  "m3_open/improved_fullgraph": {
+    "abort_file_count": {
+      "max": 0,
+      "mean": 0,
+      "min": 0,
+      "sum": 0
+    },
+    "crash_file_count": {
+      "max": 0,
+      "mean": 0,
+      "min": 0,
+      "sum": 0
+    },
+    "frontier": {
+      "max": 1166,
+      "mean": 1145.2,
+      "min": 1117,
+      "sum": 5726
+    },
+    "frontier_log_lines": {
+      "max": 0,
+      "mean": 0,
+      "min": 0,
+      "sum": 0
+    },
+    "graph": {
+      "max": 2332,
+      "mean": 2290.4,
+      "min": 2234,
+      "sum": 11452
+    },
+    "hang_file_count": {
+      "max": 0,
+      "mean": 0,
+      "min": 0,
+      "sum": 0
+    },
+    "n": 5,
+    "outs_seen": {
+      "max": 2,
+      "mean": 2,
+      "min": 2,
+      "sum": 10
+    },
+    "patch_count": {
+      "max": 2,
+      "mean": 2,
+      "min": 2,
+      "sum": 10
+    },
+    "queue_patch_count": {
+      "max": 2,
+      "mean": 2,
+      "min": 2,
+      "sum": 10
+    },
+    "returncodes": [
+      0
+    ],
+    "seconds": {
+      "max": 0.916,
+      "mean": 0.9046000000000001,
+      "min": 0.896,
+      "sum": 4.523
+    },
+    "success_patch_count": {
+      "max": 1,
+      "mean": 1,
+      "min": 1,
+      "sum": 5
+    }
+  },
+  "m3_open/improved_payload_only": {
+    "abort_file_count": {
+      "max": 0,
+      "mean": 0,
+      "min": 0,
+      "sum": 0
+    },
+    "crash_file_count": {
+      "max": 0,
+      "mean": 0,
+      "min": 0,
+      "sum": 0
+    },
+    "frontier": {
+      "max": 0,
+      "mean": 0,
+      "min": 0,
+      "sum": 0
+    },
+    "frontier_log_lines": {
+      "max": 1166,
+      "mean": 1145.2,
+      "min": 1117,
+      "sum": 5726
+    },
+    "graph": {
+      "max": 1166,
+      "mean": 1145.2,
+      "min": 1117,
+      "sum": 5726
+    },
+    "hang_file_count": {
+      "max": 0,
+      "mean": 0,
+      "min": 0,
+      "sum": 0
+    },
+    "n": 5,
+    "outs_seen": {
+      "max": 2,
+      "mean": 2,
+      "min": 2,
+      "sum": 10
+    },
+    "patch_count": {
+      "max": 2,
+      "mean": 2,
+      "min": 2,
+      "sum": 10
+    },
+    "queue_patch_count": {
+      "max": 2,
+      "mean": 2,
+      "min": 2,
+      "sum": 10
+    },
+    "returncodes": [
+      0
+    ],
+    "seconds": {
+      "max": 0.955,
+      "mean": 0.9376,
+      "min": 0.926,
+      "sum": 4.688
+    },
+    "success_patch_count": {
+      "max": 0,
+      "mean": 0,
+      "min": 0,
+      "sum": 0
+    }
+  },
+  "m3_open/original": {
+    "abort_file_count": {
+      "max": 0,
+      "mean": 0,
+      "min": 0,
+      "sum": 0
+    },
+    "crash_file_count": {
+      "max": 0,
+      "mean": 0,
+      "min": 0,
+      "sum": 0
+    },
+    "frontier_log_lines": {
+      "max": 0,
+      "mean": 0,
+      "min": 0,
+      "sum": 0
+    },
+    "hang_file_count": {
+      "max": 0,
+      "mean": 0,
+      "min": 0,
+      "sum": 0
+    },
+    "n": 5,
+    "outs_seen": {
+      "max": 1,
+      "mean": 1,
+      "min": 1,
+      "sum": 5
+    },
+    "patch_count": {
+      "max": 0,
+      "mean": 0,
+      "min": 0,
+      "sum": 0
+    },
+    "queue_patch_count": {
+      "max": 0,
+      "mean": 0,
+      "min": 0,
+      "sum": 0
+    },
+    "returncodes": [
+      0
+    ],
+    "seconds": {
+      "max": 0.891,
+      "mean": 0.8856,
+      "min": 0.881,
+      "sum": 4.428
+    },
+    "success_patch_count": {
+      "max": 0,
+      "mean": 0,
+      "min": 0,
+      "sum": 0
+    }
+  },
+  "nano_real_ttyfile/improved_graph": {
+    "abort_file_count": {
+      "max": 0,
+      "mean": 0,
+      "min": 0,
+      "sum": 0
+    },
+    "crash_file_count": {
+      "max": 0,
+      "mean": 0,
+      "min": 0,
+      "sum": 0
+    },
+    "frontier": {
+      "max": 2609,
+      "mean": 2585,
+      "min": 2554,
+      "sum": 7755
+    },
+    "frontier_log_lines": {
+      "max": 10764,
+      "mean": 10655.666666666666,
+      "min": 10566,
+      "sum": 31967
+    },
+    "graph": {
+      "max": 27355,
+      "mean": 27354.333333333332,
+      "min": 27353,
+      "sum": 82063
+    },
+    "hang_file_count": {
+      "max": 1,
+      "mean": 0.3333333333333333,
+      "min": 0,
+      "sum": 1
+    },
+    "n": 3,
+    "outs_seen": {
+      "max": 11,
+      "mean": 10.333333333333334,
+      "min": 10,
+      "sum": 31
+    },
+    "patch_count": {
+      "max": 487,
+      "mean": 477.3333333333333,
+      "min": 466,
+      "sum": 1432
+    },
+    "queue_patch_count": {
+      "max": 486,
+      "mean": 477,
+      "min": 466,
+      "sum": 1431
+    },
+    "returncodes": [
+      0
+    ],
+    "seconds": {
+      "max": 3.399,
+      "mean": 3.3596666666666666,
+      "min": 3.318,
+      "sum": 10.079
+    },
+    "success_patch_count": {
+      "max": 0,
+      "mean": 0,
+      "min": 0,
+      "sum": 0
+    }
+  },
+  "nano_real_ttyfile/improved_nograph": {
+    "abort_file_count": {
+      "max": 0,
+      "mean": 0,
+      "min": 0,
+      "sum": 0
+    },
+    "crash_file_count": {
+      "max": 0,
+      "mean": 0,
+      "min": 0,
+      "sum": 0
+    },
+    "frontier": {
+      "max": 0,
+      "mean": 0,
+      "min": 0,
+      "sum": 0
+    },
+    "frontier_log_lines": {
+      "max": 12568,
+      "mean": 12447,
+      "min": 12268,
+      "sum": 37341
+    },
+    "graph": {
+      "max": 0,
+      "mean": 0,
+      "min": 0,
+      "sum": 0
+    },
+    "hang_file_count": {
+      "max": 0,
+      "mean": 0,
+      "min": 0,
+      "sum": 0
+    },
+    "n": 3,
+    "outs_seen": {
+      "max": 12,
+      "mean": 11.333333333333334,
+      "min": 10,
+      "sum": 34
+    },
+    "patch_count": {
+      "max": 468,
+      "mean": 465,
+      "min": 460,
+      "sum": 1395
+    },
+    "queue_patch_count": {
+      "max": 468,
+      "mean": 465,
+      "min": 460,
+      "sum": 1395
+    },
+    "returncodes": [
+      0
+    ],
+    "seconds": {
+      "max": 4.06,
+      "mean": 3.525,
+      "min": 3.169,
+      "sum": 10.575
+    },
+    "success_patch_count": {
+      "max": 0,
+      "mean": 0,
+      "min": 0,
+      "sum": 0
+    }
+  },
+  "nano_real_ttyfile/original": {
+    "abort_file_count": {
+      "max": 0,
+      "mean": 0,
+      "min": 0,
+      "sum": 0
+    },
+    "crash_file_count": {
+      "max": 0,
+      "mean": 0,
+      "min": 0,
+      "sum": 0
+    },
+    "frontier_log_lines": {
+      "max": 0,
+      "mean": 0,
+      "min": 0,
+      "sum": 0
+    },
+    "hang_file_count": {
+      "max": 0,
+      "mean": 0,
+      "min": 0,
+      "sum": 0
+    },
+    "n": 3,
+    "outs_seen": {
+      "max": 14,
+      "mean": 9.333333333333334,
+      "min": 7,
+      "sum": 28
+    },
+    "patch_count": {
+      "max": 0,
+      "mean": 0,
+      "min": 0,
+      "sum": 0
+    },
+    "queue_patch_count": {
+      "max": 0,
+      "mean": 0,
+      "min": 0,
+      "sum": 0
+    },
+    "returncodes": [
+      0
+    ],
+    "seconds": {
+      "max": 5.877,
+      "mean": 5.7683333333333335,
+      "min": 5.696,
+      "sum": 17.305
+    },
+    "success_patch_count": {
+      "max": 0,
+      "mean": 0,
+      "min": 0,
+      "sum": 0
+    }
+  }
+}

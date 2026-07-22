@@ -60,7 +60,8 @@ struct CONFIG                   // RRFuzz config
     uint16_t cpu;               // CPU number.
     size_t max_execs;           // Max executions.
     size_t max_time;            // Max time.
-    char strs[];                // String options
+    char strs[];                // String options:
+                                // pcap, patch, out, install, graph
 };
 
 struct CONTEXT                  // Execution context

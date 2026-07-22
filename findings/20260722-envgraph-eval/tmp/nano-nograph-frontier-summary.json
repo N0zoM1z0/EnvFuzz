@@ -1,0 +1,679 @@
+{
+  "frontier_group_count": 22,
+  "groups": [
+    {
+      "count": 34048,
+      "kind": "queue-empty",
+      "reason": "queue_emulate_poll",
+      "syscall_name": "",
+      "resource_key": "stdio://stdin",
+      "example": {
+        "source": "findings/20260722-envgraph-eval/runs/run2/nano_real_ttyfile/improved_nograph/4001/frontiers/frontiers.jsonl",
+        "line": 2,
+        "request_shape": {
+          "operation": "read",
+          "max_len": 0,
+          "filetype": 4096,
+          "socktype": 1
+        },
+        "trace_prefix": {
+          "stage": 1,
+          "execs": 4,
+          "msg_id": 638,
+          "depth": 47,
+          "graph": 0,
+          "frontier": 0
+        },
+        "recent_output": {
+          "cov": 0,
+          "ports": [
+            {
+              "port": 10001,
+              "name": "stdio://stdout",
+              "len": 256,
+              "preview_hex": "1b5b3f32303034681b5b3f31303439681b5b32323b303b30741b5b313b323472"
+            }
+          ]
+        }
+      }
+    },
+    {
+      "count": 2281,
+      "kind": "queue-empty",
+      "reason": "queue_emulate_read",
+      "syscall_name": "",
+      "resource_key": "stdio://stdin",
+      "example": {
+        "source": "findings/20260722-envgraph-eval/runs/run2/nano_real_ttyfile/improved_nograph/4001/frontiers/frontiers.jsonl",
+        "line": 52,
+        "request_shape": {
+          "operation": "read",
+          "max_len": 1,
+          "filetype": 4096,
+          "socktype": 1
+        },
+        "trace_prefix": {
+          "stage": 1,
+          "execs": 29,
+          "msg_id": 638,
+          "depth": 38,
+          "graph": 0,
+          "frontier": 0
+        },
+        "recent_output": {
+          "cov": 0,
+          "ports": [
+            {
+              "port": 10001,
+              "name": "stdio://stdout",
+              "len": 256,
+              "preview_hex": "1b5b3f32303034681b5b3f31303439681b5b32323b303b30741b5b313b323472"
+            }
+          ]
+        }
+      }
+    },
+    {
+      "count": 133,
+      "kind": "syscall-miss",
+      "reason": "emulate_open_miss",
+      "syscall_name": "openat",
+      "resource_key": "/usr/lib/locale/C/LC_NUMERIC",
+      "example": {
+        "source": "findings/20260722-envgraph-eval/runs/run2/nano_real_ttyfile/improved_nograph/4001/frontiers/frontiers.jsonl",
+        "line": 58,
+        "request_shape": {
+          "arg0": 4294967196,
+          "arg1": 140737354148176,
+          "arg2": 524288
+        },
+        "trace_prefix": {
+          "stage": 1,
+          "execs": 31,
+          "msg_id": 92,
+          "depth": 2,
+          "graph": 0,
+          "frontier": 0
+        },
+        "recent_output": {
+          "cov": 0,
+          "ports": []
+        }
+      }
+    },
+    {
+      "count": 96,
+      "kind": "syscall-miss",
+      "reason": "emulate_open_miss",
+      "syscall_name": "openat",
+      "resource_key": "/usr/lib/locale/C/LC_MESSAGES",
+      "example": {
+        "source": "findings/20260722-envgraph-eval/runs/run2/nano_real_ttyfile/improved_nograph/4001/frontiers/frontiers.jsonl",
+        "line": 27,
+        "request_shape": {
+          "arg0": 4294967196,
+          "arg1": 140737354143088,
+          "arg2": 524288
+        },
+        "trace_prefix": {
+          "stage": 1,
+          "execs": 16,
+          "msg_id": 68,
+          "depth": 3,
+          "graph": 0,
+          "frontier": 0
+        },
+        "recent_output": {
+          "cov": 0,
+          "ports": []
+        }
+      }
+    },
+    {
+      "count": 96,
+      "kind": "syscall-miss",
+      "reason": "emulate_open_miss",
+      "syscall_name": "openat",
+      "resource_key": "/usr/share/locale-langpack/C.UTF-8/LC_MESSAGES",
+      "example": {
+        "source": "findings/20260722-envgraph-eval/runs/run2/nano_real_ttyfile/improved_nograph/4001/frontiers/frontiers.jsonl",
+        "line": 28,
+        "request_shape": {
+          "arg0": 4294967196,
+          "arg1": 140737354143328,
+          "arg2": 524288
+        },
+        "trace_prefix": {
+          "stage": 1,
+          "execs": 16,
+          "msg_id": 68,
+          "depth": 3,
+          "graph": 0,
+          "frontier": 0
+        },
+        "recent_output": {
+          "cov": 0,
+          "ports": []
+        }
+      }
+    },
+    {
+      "count": 96,
+      "kind": "syscall-miss",
+      "reason": "emulate_open_miss",
+      "syscall_name": "openat",
+      "resource_key": "/usr/share/locale-langpack/C.utf8/LC_MESSAGES",
+      "example": {
+        "source": "findings/20260722-envgraph-eval/runs/run2/nano_real_ttyfile/improved_nograph/4001/frontiers/frontiers.jsonl",
+        "line": 29,
+        "request_shape": {
+          "arg0": 4294967196,
+          "arg1": 140737354143472,
+          "arg2": 524288
+        },
+        "trace_prefix": {
+          "stage": 1,
+          "execs": 16,
+          "msg_id": 68,
+          "depth": 3,
+          "graph": 0,
+          "frontier": 0
+        },
+        "recent_output": {
+          "cov": 0,
+          "ports": []
+        }
+      }
+    },
+    {
+      "count": 96,
+      "kind": "syscall-miss",
+      "reason": "emulate_open_miss",
+      "syscall_name": "openat",
+      "resource_key": "/usr/share/locale-langpack/C/LC_MESSAGES",
+      "example": {
+        "source": "findings/20260722-envgraph-eval/runs/run2/nano_real_ttyfile/improved_nograph/4001/frontiers/frontiers.jsonl",
+        "line": 30,
+        "request_shape": {
+          "arg0": 4294967196,
+          "arg1": 140737354143200,
+          "arg2": 524288
+        },
+        "trace_prefix": {
+          "stage": 1,
+          "execs": 16,
+          "msg_id": 68,
+          "depth": 3,
+          "graph": 0,
+          "frontier": 0
+        },
+        "recent_output": {
+          "cov": 0,
+          "ports": []
+        }
+      }
+    },
+    {
+      "count": 81,
+      "kind": "syscall-miss",
+      "reason": "emulate_open_miss",
+      "syscall_name": "openat",
+      "resource_key": "/usr/lib/locale/C/LC_MONETARY",
+      "example": {
+        "source": "findings/20260722-envgraph-eval/runs/run2/nano_real_ttyfile/improved_nograph/4001/frontiers/frontiers.jsonl",
+        "line": 47,
+        "request_shape": {
+          "arg0": 4294967196,
+          "arg1": 140737354144400,
+          "arg2": 524288
+        },
+        "trace_prefix": {
+          "stage": 1,
+          "execs": 26,
+          "msg_id": 74,
+          "depth": 0,
+          "graph": 0,
+          "frontier": 0
+        },
+        "recent_output": {
+          "cov": 0,
+          "ports": []
+        }
+      }
+    },
+    {
+      "count": 72,
+      "kind": "syscall-miss",
+      "reason": "emulate_open_miss",
+      "syscall_name": "openat",
+      "resource_key": "/usr/lib/locale/C/LC_NAME",
+      "example": {
+        "source": "findings/20260722-envgraph-eval/runs/run2/nano_real_ttyfile/improved_nograph/4001/frontiers/frontiers.jsonl",
+        "line": 36,
+        "request_shape": {
+          "arg0": 4294967196,
+          "arg1": 140737354137984,
+          "arg2": 524288
+        },
+        "trace_prefix": {
+          "stage": 1,
+          "execs": 19,
+          "msg_id": 638,
+          "depth": 0,
+          "graph": 0,
+          "frontier": 0
+        },
+        "recent_output": {
+          "cov": 0,
+          "ports": []
+        }
+      }
+    },
+    {
+      "count": 59,
+      "kind": "syscall-miss",
+      "reason": "emulate_open_miss",
+      "syscall_name": "openat",
+      "resource_key": "/usr/lib/locale/C/LC_MEASUREMENT",
+      "example": {
+        "source": "findings/20260722-envgraph-eval/runs/run2/nano_real_ttyfile/improved_nograph/4001/frontiers/frontiers.jsonl",
+        "line": 9,
+        "request_shape": {
+          "arg0": 4294967196,
+          "arg1": 140737354135824,
+          "arg2": 524288
+        },
+        "trace_prefix": {
+          "stage": 1,
+          "execs": 8,
+          "msg_id": 35,
+          "depth": 0,
+          "graph": 0,
+          "frontier": 0
+        },
+        "recent_output": {
+          "cov": 0,
+          "ports": []
+        }
+      }
+    },
+    {
+      "count": 56,
+      "kind": "syscall-miss",
+      "reason": "emulate_open_miss",
+      "syscall_name": "openat",
+      "resource_key": "/usr/lib/locale/C/LC_PAPER",
+      "example": {
+        "source": "findings/20260722-envgraph-eval/runs/run2/nano_real_ttyfile/improved_nograph/4001/frontiers/frontiers.jsonl",
+        "line": 7,
+        "request_shape": {
+          "arg0": 4294967196,
+          "arg1": 140737354138704,
+          "arg2": 524288
+        },
+        "trace_prefix": {
+          "stage": 1,
+          "execs": 6,
+          "msg_id": 59,
+          "depth": 5,
+          "graph": 0,
+          "frontier": 0
+        },
+        "recent_output": {
+          "cov": 0,
+          "ports": []
+        }
+      }
+    },
+    {
+      "count": 49,
+      "kind": "syscall-miss",
+      "reason": "emulate_open_miss",
+      "syscall_name": "openat",
+      "resource_key": "/usr/lib/locale/C/LC_TELEPHONE",
+      "example": {
+        "source": "findings/20260722-envgraph-eval/runs/run2/nano_real_ttyfile/improved_nograph/4001/frontiers/frontiers.jsonl",
+        "line": 11,
+        "request_shape": {
+          "arg0": 4294967196,
+          "arg1": 140737354136512,
+          "arg2": 524288
+        },
+        "trace_prefix": {
+          "stage": 1,
+          "execs": 10,
+          "msg_id": 41,
+          "depth": 0,
+          "graph": 0,
+          "frontier": 0
+        },
+        "recent_output": {
+          "cov": 0,
+          "ports": []
+        }
+      }
+    },
+    {
+      "count": 46,
+      "kind": "syscall-miss",
+      "reason": "emulate_open_miss",
+      "syscall_name": "openat",
+      "resource_key": "/usr/lib/locale/C/LC_ADDRESS",
+      "example": {
+        "source": "findings/20260722-envgraph-eval/runs/run2/nano_real_ttyfile/improved_nograph/4001/frontiers/frontiers.jsonl",
+        "line": 1397,
+        "request_shape": {
+          "arg0": 4294967196,
+          "arg1": 140737354137216,
+          "arg2": 524288
+        },
+        "trace_prefix": {
+          "stage": 2,
+          "execs": 333,
+          "msg_id": 47,
+          "depth": 5,
+          "graph": 0,
+          "frontier": 0
+        },
+        "recent_output": {
+          "cov": 0,
+          "ports": []
+        }
+      }
+    },
+    {
+      "count": 33,
+      "kind": "syscall-miss",
+      "reason": "emulate_open_miss",
+      "syscall_name": "openat",
+      "resource_key": "/usr/lib/locale/C/LC_TIME",
+      "example": {
+        "source": "findings/20260722-envgraph-eval/runs/run2/nano_real_ttyfile/improved_nograph/4001/frontiers/frontiers.jsonl",
+        "line": 1557,
+        "request_shape": {
+          "arg0": 4294967196,
+          "arg1": 140737354146240,
+          "arg2": 524288
+        },
+        "trace_prefix": {
+          "stage": 2,
+          "execs": 428,
+          "msg_id": 638,
+          "depth": 0,
+          "graph": 0,
+          "frontier": 0
+        },
+        "recent_output": {
+          "cov": 0,
+          "ports": []
+        }
+      }
+    },
+    {
+      "count": 22,
+      "kind": "syscall-miss",
+      "reason": "emulate_open_miss",
+      "syscall_name": "openat",
+      "resource_key": "./nano-work/",
+      "example": {
+        "source": "findings/20260722-envgraph-eval/runs/run2/nano_real_ttyfile/improved_nograph/4001/frontiers/frontiers.jsonl",
+        "line": 1047,
+        "request_shape": {
+          "arg0": 4294967196,
+          "arg1": 140737354459664,
+          "arg2": 591872
+        },
+        "trace_prefix": {
+          "stage": 1,
+          "execs": 248,
+          "msg_id": 638,
+          "depth": 13,
+          "graph": 0,
+          "frontier": 0
+        },
+        "recent_output": {
+          "cov": 0,
+          "ports": [
+            {
+              "port": 10001,
+              "name": "stdio://stdout",
+              "len": 72,
+              "preview_hex": "1b5b3234641b5b4a1b5b481b5b3f31326c1b5b3f323568696e73657274656420"
+            }
+          ]
+        }
+      }
+    },
+    {
+      "count": 20,
+      "kind": "syscall-miss",
+      "reason": "emulate_open_miss",
+      "syscall_name": "openat",
+      "resource_key": "/tmp/nano.SGK2ky.txt",
+      "example": {
+        "source": "findings/20260722-envgraph-eval/runs/run2/nano_real_ttyfile/improved_nograph/4001/frontiers/frontiers.jsonl",
+        "line": 128,
+        "request_shape": {
+          "arg0": 4294967196,
+          "arg1": 140737354456176,
+          "arg2": 194
+        },
+        "trace_prefix": {
+          "stage": 1,
+          "execs": 53,
+          "msg_id": 638,
+          "depth": 34,
+          "graph": 0,
+          "frontier": 0
+        },
+        "recent_output": {
+          "cov": 0,
+          "ports": [
+            {
+              "port": 10001,
+              "name": "stdio://stdout",
+              "len": 180,
+              "preview_hex": "1b5b33393b34396d1b28421b5b6d1b5b481b5b324a616c706861206265746120"
+            }
+          ]
+        }
+      }
+    },
+    {
+      "count": 18,
+      "kind": "syscall-miss",
+      "reason": "emulate_open_miss",
+      "syscall_name": "openat",
+      "resource_key": "/usr/lib/locale/C/LC_IDENTIFICATION",
+      "example": {
+        "source": "findings/20260722-envgraph-eval/runs/run2/nano_real_ttyfile/improved_nograph/4001/frontiers/frontiers.jsonl",
+        "line": 1,
+        "request_shape": {
+          "arg0": 4294967196,
+          "arg1": 140737354135008,
+          "arg2": 524288
+        },
+        "trace_prefix": {
+          "stage": 1,
+          "execs": 3,
+          "msg_id": 23,
+          "depth": 0,
+          "graph": 0,
+          "frontier": 0
+        },
+        "recent_output": {
+          "cov": 0,
+          "ports": []
+        }
+      }
+    },
+    {
+      "count": 12,
+      "kind": "syscall-miss",
+      "reason": "emulate_open_miss",
+      "syscall_name": "openat",
+      "resource_key": "/usr/lib/locale/C/LC_COLLATE",
+      "example": {
+        "source": "findings/20260722-envgraph-eval/runs/run2/nano_real_ttyfile/improved_nograph/4001/frontiers/frontiers.jsonl",
+        "line": 1446,
+        "request_shape": {
+          "arg0": 4294967196,
+          "arg1": 140737354145424,
+          "arg2": 524288
+        },
+        "trace_prefix": {
+          "stage": 2,
+          "execs": 367,
+          "msg_id": 80,
+          "depth": 5,
+          "graph": 0,
+          "frontier": 0
+        },
+        "recent_output": {
+          "cov": 0,
+          "ports": []
+        }
+      }
+    },
+    {
+      "count": 11,
+      "kind": "syscall-miss",
+      "reason": "emulate_open_miss",
+      "syscall_name": "openat",
+      "resource_key": "./",
+      "example": {
+        "source": "findings/20260722-envgraph-eval/runs/run2/nano_real_ttyfile/improved_nograph/4001/frontiers/frontiers.jsonl",
+        "line": 555,
+        "request_shape": {
+          "arg0": 4294967196,
+          "arg1": 140737354456096,
+          "arg2": 591872
+        },
+        "trace_prefix": {
+          "stage": 1,
+          "execs": 143,
+          "msg_id": 638,
+          "depth": 26,
+          "graph": 0,
+          "frontier": 0
+        },
+        "recent_output": {
+          "cov": 0,
+          "ports": [
+            {
+              "port": 10001,
+              "name": "stdio://stdout",
+              "len": 140,
+              "preview_hex": "1b5b3234643234641b28421b5b303b376d46696c6520746f20696e7365727420"
+            }
+          ]
+        }
+      }
+    },
+    {
+      "count": 10,
+      "kind": "syscall-miss",
+      "reason": "emulate_open_miss",
+      "syscall_name": "openat",
+      "resource_key": "/tmp/nano.BABuhM.txt",
+      "example": {
+        "source": "findings/20260722-envgraph-eval/runs/run2/nano_real_ttyfile/improved_nograph/4001/frontiers/frontiers.jsonl",
+        "line": 137,
+        "request_shape": {
+          "arg0": 4294967196,
+          "arg1": 140737354456048,
+          "arg2": 194
+        },
+        "trace_prefix": {
+          "stage": 1,
+          "execs": 55,
+          "msg_id": 389,
+          "depth": 21,
+          "graph": 0,
+          "frontier": 0
+        },
+        "recent_output": {
+          "cov": 0,
+          "ports": [
+            {
+              "port": 10001,
+              "name": "stdio://stdout",
+              "len": 245,
+              "preview_hex": "1b5b33393b34396d1b28421b5b6d1b5b481b5b324a616c706861206265746120"
+            }
+          ]
+        }
+      }
+    },
+    {
+      "count": 5,
+      "kind": "syscall-miss",
+      "reason": "emulate_open_miss",
+      "syscall_name": "openat",
+      "resource_key": "/tmp/nano.SaU9rJ.txt",
+      "example": {
+        "source": "findings/20260722-envgraph-eval/runs/run2/nano_real_ttyfile/improved_nograph/4001/frontiers/frontiers.jsonl",
+        "line": 1928,
+        "request_shape": {
+          "arg0": 4294967196,
+          "arg1": 140737354458528,
+          "arg2": 194
+        },
+        "trace_prefix": {
+          "stage": 2,
+          "execs": 536,
+          "msg_id": 638,
+          "depth": 33,
+          "graph": 0,
+          "frontier": 0
+        },
+        "recent_output": {
+          "cov": 0,
+          "ports": [
+            {
+              "port": 10001,
+              "name": "stdio://stdout",
+              "len": 256,
+              "preview_hex": "1b5b3f32356c1b5b3234641b28421b5b303b376d436f6d6d616e6420746f2065"
+            }
+          ]
+        }
+      }
+    },
+    {
+      "count": 1,
+      "kind": "syscall-miss",
+      "reason": "emulate_open_miss",
+      "syscall_name": "openat",
+      "resource_key": "/tmp/nano.4Y6gce.txt",
+      "example": {
+        "source": "findings/20260722-envgraph-eval/runs/run2/nano_real_ttyfile/improved_nograph/4003/frontiers/frontiers.jsonl",
+        "line": 2282,
+        "request_shape": {
+          "arg0": 4294967196,
+          "arg1": 140737354456160,
+          "arg2": 194
+        },
+        "trace_prefix": {
+          "stage": 2,
+          "execs": 601,
+          "msg_id": 638,
+          "depth": 31,
+          "graph": 0,
+          "frontier": 0
+        },
+        "recent_output": {
+          "cov": 0,
+          "ports": [
+            {
+              "port": 10001,
+              "name": "stdio://stdout",
+              "len": 189,
+              "preview_hex": "1b5b32343b33304832343b3330481b5b314b201b28421b5b303b376d5b20556e"
+            }
+          ]
+        }
+      }
+    }
+  ]
+}

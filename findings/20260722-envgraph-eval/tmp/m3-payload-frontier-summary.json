@@ -1,0 +1,33 @@
+{
+  "frontier_group_count": 1,
+  "groups": [
+    {
+      "count": 5726,
+      "kind": "syscall-miss",
+      "reason": "emulate_open_miss",
+      "syscall_name": "openat",
+      "resource_key": "runs/tmp/m3-secret.txt",
+      "example": {
+        "source": "findings/20260722-envgraph-eval/runs/run2/m3_open/improved_payload_only/2001/frontiers/frontiers.jsonl",
+        "line": 1,
+        "request_shape": {
+          "arg0": 4294967196,
+          "arg1": 140737353859089,
+          "arg2": 0
+        },
+        "trace_prefix": {
+          "stage": 1,
+          "execs": 1,
+          "msg_id": 2,
+          "depth": 0,
+          "graph": 1,
+          "frontier": 0
+        },
+        "recent_output": {
+          "cov": 0,
+          "ports": []
+        }
+      }
+    }
+  ]
+}

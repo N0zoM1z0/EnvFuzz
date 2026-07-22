@@ -723,6 +723,8 @@ static void usage(const char *progname)
         "\t\tSet the fuzzer emulation LEVEL.\n"
         "\t--fork MODE\n"
         "\t\tSet the fork MODE to {parent,child,fail}.\n"
+        "\t--graph FILE\n"
+        "\t\tLoad EnvGraph candidate payloads from FILE\n"
         "\t--hex\n"
         "\t\tLog output as hexadecimal\n"
         "\t--log LEVEL\n"
@@ -764,6 +766,7 @@ enum OPTION
     OPTION_DIR,
     OPTION_EMULATE,
     OPTION_FORK,
+    OPTION_GRAPH,
     OPTION_FUZZ,
     OPTION_HEX,
     OPTION_LOG,
@@ -786,7 +789,8 @@ int main(int argc, char **argv, char **envp)
     option_tty = isatty(STDERR_FILENO);
     std::string option_dir("");
     std::string option_pcapname("RECORD.pcap.gz");
-    std::string option_outname("./out");
+    std::string option_outname("./runs/out");
+    std::string option_graphname("");
     std::string option_preload("");
     bool option_debug = false, option_fuzz = false, option_hex = false,
          option_record = false, option_replay = false, option_reset = false,
@@ -808,6 +812,7 @@ int main(int argc, char **argv, char **envp)
         {"dir",       required_argument, nullptr, OPTION_DIR},
         {"emulate",   required_argument, nullptr, OPTION_EMULATE},
         {"fork",      required_argument, nullptr, OPTION_FORK},
+        {"graph",     required_argument, nullptr, OPTION_GRAPH},
         {"hex",       no_argument,       nullptr, OPTION_HEX},
         {"log",       required_argument, nullptr, OPTION_LOG},
         {"out",       required_argument, nullptr, OPTION_OUT},
@@ -857,6 +862,8 @@ int main(int argc, char **argv, char **envp)
                     error("failed to parse fork-mode \"%s\"; expected one of "
                         "{parent,child,fail}", optarg);
                 break;
+            case OPTION_GRAPH:
+                option_graphname = optarg; break;
             case OPTION_HEX:
                 option_hex = true; break;
             case OPTION_LOG:
@@ -936,6 +943,8 @@ int main(int argc, char **argv, char **envp)
     option_dir = (option_dir == ""? ".": option_dir);
     if (option_emulate >= 0 && !option_fuzz && !option_replay)
         error("`--emulate' can only be used in \"fuzz\" or \"replay\" modes");
+    if (option_graphname != "" && !option_fuzz && !option_replay)
+        error("`--graph' can only be used in \"fuzz\" or \"replay\" modes");
     option_emulate = (option_emulate < 0? 2: option_emulate);
 
     // Create the tasks
@@ -958,6 +967,8 @@ int main(int argc, char **argv, char **envp)
     if (option_fuzz)
         setupFuzzDir(option_outname);
     realPath(option_outname);
+    if (option_graphname != "")
+        realPath(option_graphname);
     {
         std::string tmpname;
         tmpname = option_outname;
@@ -1006,6 +1017,8 @@ int main(int argc, char **argv, char **envp)
             (ssize_t)sizeof(option_nonce))
         error("failed to generate random nonce: %s", strerror(errno));
 
+    int replay_result = 0;
+
     // Loop over the tasks
     for (const char *task: tasks)
     {
@@ -1031,7 +1044,8 @@ int main(int argc, char **argv, char **envp)
             option_pcapname.size()+1  +
             option_patchname.size()+1 +
             option_outname.size()+1   +
-            installdir.size()+1;
+            installdir.size()+1       +
+            option_graphname.size()+1;
         uint8_t *buf = new uint8_t[size];
         CONFIG *config    = (CONFIG *)buf;
         memcpy(config->nonce, option_nonce, sizeof(config->nonce));
@@ -1061,6 +1075,9 @@ int main(int argc, char **argv, char **envp)
         i += option_outname.size() + 1;
         memcpy(config->strs+i, installdir.c_str(), installdir.size()+1);
         i += installdir.size() + 1;
+        memcpy(config->strs+i, option_graphname.c_str(),
+            option_graphname.size()+1);
+        i += option_graphname.size() + 1;
         assert(size == sizeof(CONFIG) + i);
         errno = 0;
         if (write(fds[1], buf, size) != (ssize_t)size)
@@ -1137,16 +1154,28 @@ int main(int argc, char **argv, char **envp)
             if (option_patch)
                 fprintf(stderr, "%s%s%s: ", YELLOW, task, OFF);
             if (WIFEXITED(status))
+            {
                 fprintf(stderr, "%sEXIT %d%s\n", GREEN, WEXITSTATUS(status),
                     OFF);
+                if (option_replay && WEXITSTATUS(status) != 0 &&
+                        replay_result == 0)
+                    replay_result = WEXITSTATUS(status);
+            }
             else if (WIFSIGNALED(status))
+            {
                 fprintf(stderr, "%s%s%s\n", RED, strsignal(WTERMSIG(status)),
                     OFF);
+                if (option_replay && replay_result == 0)
+                    replay_result = 128 + WTERMSIG(status);
+            }
             else
+            {
                 fprintf(stderr, "???\n");
+                if (option_replay && replay_result == 0)
+                    replay_result = 1;
+            }
         }
     }
 
-    return 0;
+    return replay_result;
 }
-

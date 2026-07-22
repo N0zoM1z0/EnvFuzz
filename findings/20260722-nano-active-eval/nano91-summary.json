@@ -1,0 +1,122 @@
+{
+  "improved_filtered_active_graph": {
+    "abort_file_count": {
+      "max": 0,
+      "mean": 0,
+      "min": 0,
+      "sum": 0
+    },
+    "crash_file_count": {
+      "max": 0,
+      "mean": 0,
+      "min": 0,
+      "sum": 0
+    },
+    "frontier": {
+      "max": 9148,
+      "mean": 8968.6,
+      "min": 8756,
+      "sum": 89686
+    },
+    "frontier_log_lines": {
+      "max": 27667,
+      "mean": 27121.3,
+      "min": 26110,
+      "sum": 271213
+    },
+    "graph": {
+      "max": 14382,
+      "mean": 14105,
+      "min": 13810,
+      "sum": 141050
+    },
+    "hang_file_count": {
+      "max": 0,
+      "mean": 0,
+      "min": 0,
+      "sum": 0
+    },
+    "n": 10,
+    "outs_seen": {
+      "max": 15,
+      "mean": 13.9,
+      "min": 13,
+      "sum": 139
+    },
+    "patch_count": {
+      "max": 32,
+      "mean": 27.5,
+      "min": 26,
+      "sum": 275
+    },
+    "returncodes": [
+      0
+    ],
+    "seconds": {
+      "max": 11.739,
+      "mean": 10.5821,
+      "min": 9.693,
+      "sum": 105.821
+    }
+  },
+  "improved_nograph": {
+    "abort_file_count": {
+      "max": 0,
+      "mean": 0,
+      "min": 0,
+      "sum": 0
+    },
+    "crash_file_count": {
+      "max": 0,
+      "mean": 0,
+      "min": 0,
+      "sum": 0
+    },
+    "frontier": {
+      "max": 0,
+      "mean": 0,
+      "min": 0,
+      "sum": 0
+    },
+    "frontier_log_lines": {
+      "max": 30002,
+      "mean": 26593.5,
+      "min": 24428,
+      "sum": 265935
+    },
+    "graph": {
+      "max": 0,
+      "mean": 0,
+      "min": 0,
+      "sum": 0
+    },
+    "hang_file_count": {
+      "max": 0,
+      "mean": 0,
+      "min": 0,
+      "sum": 0
+    },
+    "n": 10,
+    "outs_seen": {
+      "max": 15,
+      "mean": 14,
+      "min": 13,
+      "sum": 140
+    },
+    "patch_count": {
+      "max": 29,
+      "mean": 26.6,
+      "min": 23,
+      "sum": 266
+    },
+    "returncodes": [
+      0
+    ],
+    "seconds": {
+      "max": 12.763,
+      "mean": 11.6232,
+      "min": 10.596,
+      "sum": 116.232
+    }
+  }
+}

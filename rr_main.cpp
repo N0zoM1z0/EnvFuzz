@@ -56,6 +56,7 @@ static const char *option_filename  = NULL;     // Recording filename.
 static const char *option_patchname = NULL;     // Patch filename.
 static const char *option_outname   = NULL;     // Output dirname.
 static const char *option_install   = NULL;     // Install dir.
+static const char *option_graphname = NULL;     // EnvGraph filename.
 static uint64_t option_nonce[2]     = {0};      // Random nonce.
 static mem_check_t option_mem_check = NULL;     // Memory error checker.
 static str_check_t option_str_check = NULL;     // String error checker.
@@ -463,7 +464,7 @@ static void parse_config(void)
     option_timeout   = config->timeout;
     option_seed      = config->seed;
     option_fork      = config->fork;
-    const char *strs[4];
+    const char *strs[5];
     size_t i = 0, n = (size_t)r - sizeof(CONFIG);
     for (size_t j = 0; j < sizeof(strs) / sizeof(strs[0]); j++)
     {
@@ -477,6 +478,7 @@ static void parse_config(void)
     option_patchname = (strs[1] == NULL? option_patchname: strs[1]);
     option_outname   = (strs[2] == NULL? option_outname  : strs[2]);
     option_install   = (strs[3] == NULL? option_install  : strs[3]);
+    option_graphname = (strs[4] == NULL? option_graphname: strs[4]);
     if (option_fuzz)
         option_log--;       // Fuzz mode lowers log-level
 }
@@ -493,9 +495,10 @@ void init(int argc, char **argv, char **envp)
     // Step (-2): Read options
     environ = envp;
     option_filename  = "./out/RECORD.pcap";
-    option_patchname = "./out/PATCH.patch";
-    option_outname   = "./out";
+    option_patchname = "./runs/out/PATCH.patch";
+    option_outname   = "./runs/out";
     option_install   = "./";
+    option_graphname = NULL;
     parse_config();
     option_RNG = (RNG *)xmalloc(sizeof(RNG));
     option_RNG->reset(option_seed);
@@ -605,6 +608,7 @@ void init(int argc, char **argv, char **envp)
         fclose(option_pcap);
         option_pcap = NULL;
         replay_init();
+        envgraph_load();
         fuzzer_main(nmsg);
     }
 }
@@ -635,4 +639,3 @@ static intptr_t callback(int cmd, intptr_t arg)
             error("unknown callback command (%d)", cmd);
     }
 }
-
