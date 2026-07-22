@@ -786,7 +786,7 @@ int main(int argc, char **argv, char **envp)
     option_tty = isatty(STDERR_FILENO);
     std::string option_dir("");
     std::string option_pcapname("RECORD.pcap.gz");
-    std::string option_outname("./out");
+    std::string option_outname("./runs/out");
     std::string option_preload("");
     bool option_debug = false, option_fuzz = false, option_hex = false,
          option_record = false, option_replay = false, option_reset = false,
@@ -1149,4 +1149,3 @@ int main(int argc, char **argv, char **envp)
 
     return 0;
 }
-

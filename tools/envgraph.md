@@ -9,7 +9,7 @@ behavior.
 ```bash
 tools/envgraph.py dump --summary --include-payload \
   --trace-id nano-ttyfile \
-  out-nano-ttyfile/RECORD.pcap.gz > tmp-envgraph/nano-ttyfile.jsonl
+  runs/nano-ttyfile/RECORD.pcap.gz > runs/tmp/nano-ttyfile.jsonl
 ```
 
 The dump is JSONL and contains:
@@ -22,9 +22,9 @@ The dump is JSONL and contains:
 
 ```bash
 tools/envgraph.py build \
-  tmp-envgraph/nano-ttyfile.jsonl \
-  tmp-envgraph/nano-self.jsonl \
-  tmp-envgraph/nano-input.jsonl > tmp-envgraph/nano.graph.json
+  runs/tmp/nano-ttyfile.jsonl \
+  runs/tmp/nano-self.jsonl \
+  runs/tmp/nano-input.jsonl > runs/tmp/nano.graph.json
 ```
 
 The graph groups inbound payload candidates by:
@@ -57,4 +57,3 @@ stdio stdio://stdin payload_len=1 variant_count=17
 That is expected for the current nano traces: locale, gconv, terminfo, and the
 seed text file are mostly identical across workloads, while the terminal input
 stream contains real workload variation.
-

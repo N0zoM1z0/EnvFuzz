@@ -493,8 +493,8 @@ void init(int argc, char **argv, char **envp)
     // Step (-2): Read options
     environ = envp;
     option_filename  = "./out/RECORD.pcap";
-    option_patchname = "./out/PATCH.patch";
-    option_outname   = "./out";
+    option_patchname = "./runs/out/PATCH.patch";
+    option_outname   = "./runs/out";
     option_install   = "./";
     parse_config();
     option_RNG = (RNG *)xmalloc(sizeof(RNG));
@@ -635,4 +635,3 @@ static intptr_t callback(int cmd, intptr_t arg)
             error("unknown callback command (%d)", cmd);
     }
 }
-
