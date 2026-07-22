@@ -21,3 +21,23 @@
 !/runs/.gitkeep
 /tools/__pycache__/
 *.pyc
+
+# Local fuzz/evaluation artifacts. Keep committed summaries and runner scripts in
+# findings/, but do not track raw corpora, pcaps, queues, logs, or scratch dirs.
+/findings/**/runs/
+/findings/**/logs/
+/findings/**/tmp/
+/findings/**/recordings/
+/findings/**/workloads/
+/findings/**/artifacts/
+/findings/**/manual-click-*/
+/findings/**/*.bak/
+/findings/**/*_record_driver.expect
+/findings/**/*-active-manifest.json
+
+# Locally downloaded/built targets used during experiments.
+/third_party/
+/nano-work/
+
+# Ad-hoc local notes/checkpoints.
+/droid.resume.txt
