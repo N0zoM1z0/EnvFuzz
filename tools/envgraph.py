@@ -11,6 +11,7 @@ import gzip
 import hashlib
 import json
 import os
+import re
 import struct
 import sys
 from pathlib import Path
@@ -503,11 +504,39 @@ def read_json_lines(paths):
                 yield json.loads(line)
 
 
+def compile_resource_filters(args):
+    args.include_resource_patterns = [
+        re.compile(pattern) for pattern in args.include_resource_regex
+    ]
+    args.exclude_resource_patterns = [
+        re.compile(pattern) for pattern in args.exclude_resource_regex
+    ]
+
+
+def resource_matches(patterns, values):
+    return any(pattern.search(value) for pattern in patterns for value in values)
+
+
+def resource_allowed(args, *values):
+    values = [str(value) for value in values if value is not None]
+    if args.include_resource_patterns and not resource_matches(
+        args.include_resource_patterns, values
+    ):
+        return False
+    if args.exclude_resource_patterns and resource_matches(
+        args.exclude_resource_patterns, values
+    ):
+        return False
+    return True
+
+
 def build_graph(args):
+    compile_resource_filters(args)
     traces = {}
     resources = {}
     candidates = collections.defaultdict(list)
     schedule_candidates = {}
+    filtered = collections.Counter()
 
     for item in read_json_lines(args.dumps):
         item_type = item.get("type")
@@ -516,9 +545,17 @@ def build_graph(args):
             traces[trace_id] = item
             continue
         if item_type == "resource":
+            if not resource_allowed(
+                args, item.get("resource_key"), item.get("resource_name")
+            ):
+                filtered["resource"] += 1
+                continue
             resources.setdefault(item["resource_key"], {}).setdefault(trace_id, item)
             continue
         if item_type == "schedule":
+            if not resource_allowed(args, item.get("path")):
+                filtered["schedule"] += 1
+                continue
             if "sched_hex" not in item:
                 raise ValueError(
                     "graph build needs schedule bytes; run dump with --include-schedule"
@@ -541,6 +578,11 @@ def build_graph(args):
                 }
             continue
         if item_type != "message" or item.get("direction") != "inbound":
+            continue
+        if not resource_allowed(
+            args, item.get("resource_key"), item.get("resource_name")
+        ):
+            filtered["message"] += 1
             continue
         if item["payload_len"] == 0:
             continue
@@ -596,6 +638,8 @@ def build_graph(args):
             "min_variants": args.min_variants,
             "max_variants": args.max_variants,
             "input_count": len(args.dumps),
+            "include_resource_regex": args.include_resource_regex,
+            "exclude_resource_regex": args.exclude_resource_regex,
         },
         "summary": {
             "trace_count": len(traces),
@@ -605,6 +649,9 @@ def build_graph(args):
                 len(group["candidates"]) for group in graph_candidates
             ),
             "schedule_candidate_count": len(schedule_candidates),
+            "filtered_resource_count": filtered["resource"],
+            "filtered_message_count": filtered["message"],
+            "filtered_schedule_count": filtered["schedule"],
         },
         "traces": traces,
         "resources": resources,
@@ -661,6 +708,24 @@ def main(argv=None):
         type=int,
         default=256,
         help="maximum white-listed syscall schedule candidates stored",
+    )
+    build.add_argument(
+        "--include-resource-regex",
+        action="append",
+        default=[],
+        help=(
+            "only keep resource/message/schedule candidates whose key, name, "
+            "or path matches this regex; may be repeated"
+        ),
+    )
+    build.add_argument(
+        "--exclude-resource-regex",
+        action="append",
+        default=[],
+        help=(
+            "drop resource/message/schedule candidates whose key, name, or "
+            "path matches this regex; may be repeated"
+        ),
     )
     build.set_defaults(func=build_graph)
 

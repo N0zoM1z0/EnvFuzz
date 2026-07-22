@@ -84,12 +84,23 @@ def run_manifest(args):
     results = []
     for idx, run in enumerate(manifest.get("runs", []), 1):
         out = run["out"]
-        command = run["command"]
-        if isinstance(command, str):
-            raise ValueError("run #%d command must be a JSON array" % idx)
-        cmd = [env_fuzz, "record", "--out", out, "--"] + command
+        Path(out).parent.mkdir(parents=True, exist_ok=True)
         env = default_env.copy()
         env.update(run.get("env", {}))
+        env["ENV_FUZZ"] = env_fuzz
+        env["OUT"] = out
+        if "driver_command" in run:
+            cmd = run["driver_command"]
+            if isinstance(cmd, str):
+                raise ValueError(
+                    "run #%d driver_command must be a JSON array" % idx
+                )
+        else:
+            command = run["command"]
+            if isinstance(command, str):
+                raise ValueError("run #%d command must be a JSON array" % idx)
+            env["TARGET_COMMAND_JSON"] = json.dumps(command)
+            cmd = [env_fuzz, "record", "--out", out, "--"] + command
         input_data = stdin_bytes(run)
         if args.dry_run:
             result = {

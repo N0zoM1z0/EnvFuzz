@@ -42,6 +42,21 @@ For M3 schedule graft experiments, use `dump --include-schedule` and usually
 build with `--min-variants 1`, because a newly reachable file/socket resource
 may only appear in one alternate trace.
 
+Use resource filters when a graph should focus on target-owned inputs instead
+of system data:
+
+```bash
+tools/envgraph.py build --min-variants 1 \
+  --include-resource-regex '^(stdio://stdin|/path/to/workloads/)' \
+  --exclude-resource-regex '/usr/lib.*/(locale|gconv)|/usr/share/locale' \
+  trace-a.jsonl trace-b.jsonl > focused.graph.json
+```
+
+Filters apply to resource rows, inbound message candidates, and schedule
+candidates.  `--include-resource-regex` keeps only matching resource keys,
+names, or schedule paths; `--exclude-resource-regex` drops matching ones.  Both
+options may be repeated.
+
 ## M0 Evaluation Snapshot
 
 Using the three existing nano recordings:
@@ -223,6 +238,26 @@ Minimal manifest format:
       "out": "runs/m4-open-active-alt",
       "command": ["runs/tmp/m3_open_branch"],
       "stdin_text": "GO"
+    }
+  ]
+}
+```
+
+For interactive targets that need an external TTY driver, a manifest run may
+provide `driver_command` instead of `command`.  The runner creates the output
+parent directory and exports `ENV_FUZZ` and `OUT`; the driver is responsible for
+starting `env-fuzz record --out "$OUT" -- ...`.
+
+```json
+{
+  "env_fuzz": "./env-fuzz",
+  "runs": [
+    {
+      "out": "runs/nano-active-search",
+      "driver_command": ["expect", "-f", "record-nano.expect"],
+      "env": {
+        "SCENARIO": "search_append"
+      }
     }
   ]
 }
