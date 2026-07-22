@@ -145,7 +145,7 @@ struct CORPUS                   // Set of patches
     {
         // Create the patch filename:
         PRINTER Q;
-        Q.format("out/queue/m%u/", P->head->id);
+        Q.format("%s/queue/m%u/", option_outname, P->head->id);
         if (mkdir(Q.str(), 0777) < 0 && errno != EEXIST)
             error("failed to make directory \"%s\": %s", Q.str(),
                 strerror(errno));
@@ -346,4 +346,3 @@ static MSG *patch_next(MSG *M, PATCH *P)
     }
     return M;
 }
-
