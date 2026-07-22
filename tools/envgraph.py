@@ -520,6 +520,12 @@ def compile_resource_filters(args):
     args.tty_context_resource_patterns = [
         re.compile(pattern) for pattern in args.tty_context_resource_regex
     ]
+    args.include_tty_action_payload_patterns = [
+        re.compile(pattern) for pattern in args.include_tty_action_regex
+    ]
+    args.exclude_tty_action_payload_patterns = [
+        re.compile(pattern) for pattern in args.exclude_tty_action_regex
+    ]
 
 
 def resource_matches(patterns, values):
@@ -554,12 +560,34 @@ def tty_context_resource_allowed(args, *values):
     return resource_matches(args.tty_context_resource_patterns, values)
 
 
+def tty_action_payload_allowed(args, payload):
+    text = payload.decode("utf-8", errors="replace")
+    values = [text, payload.hex()]
+    if args.include_tty_action_payload_patterns and not resource_matches(
+        args.include_tty_action_payload_patterns, values
+    ):
+        return False
+    if args.exclude_tty_action_payload_patterns and resource_matches(
+        args.exclude_tty_action_payload_patterns, values
+    ):
+        return False
+    return True
+
+
 def is_tty_control(byte):
     return (byte < 32 and byte not in (9, 10, 13)) or byte == 127
 
 
 def is_tty_action_boundary(byte):
     return byte in (10, 13) or is_tty_control(byte)
+
+
+def is_tty_action_start(stream, start, args):
+    if not args.tty_action_start_boundary_only:
+        return True
+    if start == 0:
+        return True
+    return is_tty_action_boundary(stream[start - 1])
 
 
 def normalize_tty_output(data):
@@ -601,6 +629,10 @@ def normalize_tty_output(data):
 
 
 def classify_tty_state(context):
+    if b"...>" in context:
+        return "prompt:sqlite-continuation"
+    if b"sqlite>" in context:
+        return "prompt:sqlite"
     if b"Search:" in context:
         return "prompt:search"
     if b"Write to File:" in context or b"File Name to Write" in context:
@@ -721,6 +753,8 @@ def build_tty_action_candidates(trace_messages, args):
             for start in range(len(stream)):
                 start_index = offset_to_index[start]
                 first = stream[start]
+                if not is_tty_action_start(stream, start, args):
+                    continue
                 if args.tty_action_start_control and not is_tty_control(first):
                     continue
                 payload = b""
@@ -735,6 +769,14 @@ def build_tty_action_candidates(trace_messages, args):
                     ):
                         continue
                     metadata = sequence_metadata(payload)
+                    if (
+                        args.max_tty_action_enters is not None
+                        and metadata["sequence_enter_count"]
+                        > args.max_tty_action_enters
+                    ):
+                        break
+                    if not tty_action_payload_allowed(args, payload):
+                        continue
                     if args.tty_action_require_control and not metadata[
                         "sequence_control_count"
                     ]:
@@ -825,6 +867,16 @@ def build_graph(args):
         raise ValueError("--min-tty-action-len must be <= --max-tty-action-len")
     if args.include_tty_actions and args.min_tty_context_len > args.tty_context_len:
         raise ValueError("--min-tty-context-len must be <= --tty-context-len")
+    if (
+        args.include_tty_actions
+        and args.max_tty_action_enters is not None
+        and args.max_tty_action_enters < 0
+    ):
+        raise ValueError("--max-tty-action-enters must be >= 0")
+    if args.include_tty_actions and args.tty_action_runtime_budget < 0:
+        raise ValueError("--tty-action-runtime-budget must be >= 0")
+    if args.include_tty_actions and args.tty_action_runtime_period < 1:
+        raise ValueError("--tty-action-runtime-period must be >= 1")
     if args.include_tty_actions and args.tty_action_context_mode not in (
         "state",
         "substring",
@@ -986,12 +1038,18 @@ def build_graph(args):
             "include_tty_actions": args.include_tty_actions,
             "min_tty_action_len": args.min_tty_action_len,
             "max_tty_action_len": args.max_tty_action_len,
+            "max_tty_action_enters": args.max_tty_action_enters,
             "max_tty_actions": args.max_tty_actions,
             "tty_action_start_control": args.tty_action_start_control,
             "tty_action_boundary_only": args.tty_action_boundary_only,
+            "tty_action_start_boundary_only": args.tty_action_start_boundary_only,
             "tty_action_require_control": args.tty_action_require_control,
             "tty_action_resource_regex": args.tty_action_resource_regex,
             "tty_context_resource_regex": args.tty_context_resource_regex,
+            "include_tty_action_regex": args.include_tty_action_regex,
+            "exclude_tty_action_regex": args.exclude_tty_action_regex,
+            "tty_action_runtime_budget": args.tty_action_runtime_budget,
+            "tty_action_runtime_period": args.tty_action_runtime_period,
             "tty_context_len": args.tty_context_len,
             "min_tty_context_len": args.min_tty_context_len,
             "tty_action_context_mode": args.tty_action_context_mode,
@@ -1133,6 +1191,24 @@ def main(argv=None):
         ),
     )
     build.add_argument(
+        "--include-tty-action-regex",
+        action="append",
+        default=[],
+        help=(
+            "only store TTY actions whose decoded payload text or hex matches "
+            "this regex; may be repeated"
+        ),
+    )
+    build.add_argument(
+        "--exclude-tty-action-regex",
+        action="append",
+        default=[],
+        help=(
+            "drop TTY actions whose decoded payload text or hex matches this "
+            "regex; may be repeated"
+        ),
+    )
+    build.add_argument(
         "--min-tty-action-len",
         type=int,
         default=2,
@@ -1145,10 +1221,27 @@ def main(argv=None):
         help="maximum byte length for TTY action candidates",
     )
     build.add_argument(
+        "--max-tty-action-enters",
+        type=int,
+        help="maximum newline/enter bytes allowed in a TTY action",
+    )
+    build.add_argument(
         "--max-tty-actions",
         type=int,
         default=256,
         help="maximum TTY action candidates stored in the graph",
+    )
+    build.add_argument(
+        "--tty-action-runtime-budget",
+        type=int,
+        default=1,
+        help="maximum new TTY actions a runtime leaf may start; 0 disables actions",
+    )
+    build.add_argument(
+        "--tty-action-runtime-period",
+        type=int,
+        default=1,
+        help="sample new runtime TTY action starts with probability 1/N",
     )
     build.add_argument(
         "--tty-action-start-control",
@@ -1161,6 +1254,12 @@ def main(argv=None):
         action=argparse.BooleanOptionalAction,
         default=True,
         help="only end TTY actions at enter/control-byte boundaries",
+    )
+    build.add_argument(
+        "--tty-action-start-boundary-only",
+        action=argparse.BooleanOptionalAction,
+        default=False,
+        help="only start TTY actions at stream start or immediately after an enter/control byte",
     )
     build.add_argument(
         "--tty-action-require-control",

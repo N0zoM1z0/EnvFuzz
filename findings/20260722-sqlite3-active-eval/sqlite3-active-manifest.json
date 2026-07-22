@@ -1,0 +1,104 @@
+{
+  "env_fuzz": "/home/pentester/Project/EnvFuzz/env-fuzz",
+  "env": {
+    "SQLITE_BIN": "/home/pentester/Project/EnvFuzz/third_party/sqlite-3.53.3-install/bin/sqlite3",
+    "SQLITE_HOME": "/home/pentester/Project/EnvFuzz/findings/20260722-sqlite3-active-eval/home"
+  },
+  "runs": [
+    {
+      "out": "/home/pentester/Project/EnvFuzz/findings/20260722-sqlite3-active-eval/recordings/base-exit",
+      "driver_command": [
+        "expect",
+        "-f",
+        "/home/pentester/Project/EnvFuzz/findings/20260722-sqlite3-active-eval/sqlite3_record_driver.expect"
+      ],
+      "env": {
+        "SCENARIO": "base_exit",
+        "SQLITE_DB": "/home/pentester/Project/EnvFuzz/findings/20260722-sqlite3-active-eval/workloads/data/base.db",
+        "RESET_DB_FILES": "/home/pentester/Project/EnvFuzz/findings/20260722-sqlite3-active-eval/workloads/data/base.db"
+      }
+    },
+    {
+      "out": "/home/pentester/Project/EnvFuzz/findings/20260722-sqlite3-active-eval/recordings/create-select",
+      "driver_command": [
+        "expect",
+        "-f",
+        "/home/pentester/Project/EnvFuzz/findings/20260722-sqlite3-active-eval/sqlite3_record_driver.expect"
+      ],
+      "env": {
+        "SCENARIO": "create_select",
+        "SQLITE_DB": "/home/pentester/Project/EnvFuzz/findings/20260722-sqlite3-active-eval/workloads/data/create.db",
+        "RESET_DB_FILES": "/home/pentester/Project/EnvFuzz/findings/20260722-sqlite3-active-eval/workloads/data/create.db"
+      }
+    },
+    {
+      "out": "/home/pentester/Project/EnvFuzz/findings/20260722-sqlite3-active-eval/recordings/multiline-select",
+      "driver_command": [
+        "expect",
+        "-f",
+        "/home/pentester/Project/EnvFuzz/findings/20260722-sqlite3-active-eval/sqlite3_record_driver.expect"
+      ],
+      "env": {
+        "SCENARIO": "multiline_select",
+        "SQLITE_DB": "/home/pentester/Project/EnvFuzz/findings/20260722-sqlite3-active-eval/workloads/data/multiline.db",
+        "RESET_DB_FILES": "/home/pentester/Project/EnvFuzz/findings/20260722-sqlite3-active-eval/workloads/data/multiline.db"
+      }
+    },
+    {
+      "out": "/home/pentester/Project/EnvFuzz/findings/20260722-sqlite3-active-eval/recordings/read-script",
+      "driver_command": [
+        "expect",
+        "-f",
+        "/home/pentester/Project/EnvFuzz/findings/20260722-sqlite3-active-eval/sqlite3_record_driver.expect"
+      ],
+      "env": {
+        "SCENARIO": "read_script",
+        "SQLITE_DB": "/home/pentester/Project/EnvFuzz/findings/20260722-sqlite3-active-eval/workloads/data/read.db",
+        "SCRIPT_FILE": "/home/pentester/Project/EnvFuzz/findings/20260722-sqlite3-active-eval/workloads/data/script.sql",
+        "RESET_DB_FILES": "/home/pentester/Project/EnvFuzz/findings/20260722-sqlite3-active-eval/workloads/data/read.db"
+      }
+    },
+    {
+      "out": "/home/pentester/Project/EnvFuzz/findings/20260722-sqlite3-active-eval/recordings/import-csv",
+      "driver_command": [
+        "expect",
+        "-f",
+        "/home/pentester/Project/EnvFuzz/findings/20260722-sqlite3-active-eval/sqlite3_record_driver.expect"
+      ],
+      "env": {
+        "SCENARIO": "import_csv",
+        "SQLITE_DB": "/home/pentester/Project/EnvFuzz/findings/20260722-sqlite3-active-eval/workloads/data/import.db",
+        "IMPORT_FILE": "/home/pentester/Project/EnvFuzz/findings/20260722-sqlite3-active-eval/workloads/data/import.csv",
+        "RESET_DB_FILES": "/home/pentester/Project/EnvFuzz/findings/20260722-sqlite3-active-eval/workloads/data/import.db"
+      }
+    },
+    {
+      "out": "/home/pentester/Project/EnvFuzz/findings/20260722-sqlite3-active-eval/recordings/reopen-db",
+      "driver_command": [
+        "expect",
+        "-f",
+        "/home/pentester/Project/EnvFuzz/findings/20260722-sqlite3-active-eval/sqlite3_record_driver.expect"
+      ],
+      "env": {
+        "SCENARIO": "reopen_db",
+        "SQLITE_DB": "/home/pentester/Project/EnvFuzz/findings/20260722-sqlite3-active-eval/workloads/data/current.db",
+        "REOPEN_DB": "/home/pentester/Project/EnvFuzz/findings/20260722-sqlite3-active-eval/workloads/data/reopen.db",
+        "RESET_DB_FILES": "/home/pentester/Project/EnvFuzz/findings/20260722-sqlite3-active-eval/workloads/data/current.db\n/home/pentester/Project/EnvFuzz/findings/20260722-sqlite3-active-eval/workloads/data/reopen.db"
+      }
+    },
+    {
+      "out": "/home/pentester/Project/EnvFuzz/findings/20260722-sqlite3-active-eval/recordings/attach-extra",
+      "driver_command": [
+        "expect",
+        "-f",
+        "/home/pentester/Project/EnvFuzz/findings/20260722-sqlite3-active-eval/sqlite3_record_driver.expect"
+      ],
+      "env": {
+        "SCENARIO": "attach_extra",
+        "SQLITE_DB": "/home/pentester/Project/EnvFuzz/findings/20260722-sqlite3-active-eval/workloads/data/attach-main.db",
+        "ATTACH_DB": "/home/pentester/Project/EnvFuzz/findings/20260722-sqlite3-active-eval/workloads/data/attach-extra.db",
+        "RESET_DB_FILES": "/home/pentester/Project/EnvFuzz/findings/20260722-sqlite3-active-eval/workloads/data/attach-main.db\n/home/pentester/Project/EnvFuzz/findings/20260722-sqlite3-active-eval/workloads/data/attach-extra.db"
+      }
+    }
+  ]
+}

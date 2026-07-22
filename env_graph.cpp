@@ -58,6 +58,8 @@ static size_t envgraph_sched_count = 0;
 static size_t envgraph_active_seq_off = 0;
 static size_t envgraph_active_action_off = 0;
 static size_t envgraph_action_uses = 0;
+static size_t envgraph_action_budget = 1;
+static size_t envgraph_action_period = 1;
 static bool envgraph_frontier_more = false;
 
 static bool envgraph_enabled(void)
@@ -355,6 +357,15 @@ static void envgraph_load(void)
             option_graphname);
     xfree(format);
 
+    (void)envgraph_parse_size(
+        envgraph_find_key(buf, end, "tty_action_runtime_budget"), end,
+        &envgraph_action_budget);
+    (void)envgraph_parse_size(
+        envgraph_find_key(buf, end, "tty_action_runtime_period"), end,
+        &envgraph_action_period);
+    if (envgraph_action_period == 0)
+        envgraph_action_period = 1;
+
     const char *p = buf;
     while ((p = envgraph_find_literal(p, end, "\"payload_hex\"")) != NULL)
     {
@@ -556,9 +567,10 @@ static void envgraph_load(void)
     if (option_log >= 1)
         fprintf(stderr,
             "%sENVGRAPH%s %s candidates=%zu sequences=%zu actions=%zu "
-            "schedules=%zu\n",
+            "schedules=%zu action_budget=%zu action_period=%zu\n",
             MAGENTA, OFF, option_graphname, envgraph_cand_count,
-            envgraph_seq_count, envgraph_action_count, envgraph_sched_count);
+            envgraph_seq_count, envgraph_action_count, envgraph_sched_count,
+            envgraph_action_budget, envgraph_action_period);
 }
 
 static size_t envgraph_count_matches(const ENTRY *E, const MSG *M)
@@ -714,6 +726,10 @@ static bool envgraph_contains_str(const uint8_t *haystack, size_t haystack_len,
 static const char *envgraph_tty_state(const uint8_t *context,
     size_t context_len)
 {
+    if (envgraph_contains_str(context, context_len, "...>"))
+        return "prompt:sqlite-continuation";
+    if (envgraph_contains_str(context, context_len, "sqlite>"))
+        return "prompt:sqlite";
     if (envgraph_contains_str(context, context_len, "Search:"))
         return "prompt:search";
     if (envgraph_contains_str(context, context_len, "Write to File:") ||
@@ -802,20 +818,47 @@ static size_t envgraph_count_sequence_matches(const ENTRY *E)
     return count;
 }
 
-static bool envgraph_has_action_frontier(const ENTRY *E, const OUTPUT *out)
+static bool envgraph_action_start_possible(void)
 {
+    if (envgraph_action_budget == 0 ||
+            envgraph_action_uses >= envgraph_action_budget)
+        return false;
+    return true;
+}
+
+static bool envgraph_action_start_sampled(uint32_t id, RNG *R)
+{
+    (void)id;
+    if (!envgraph_action_start_possible())
+        return false;
+    if (envgraph_action_period <= 1 || R == NULL)
+        return true;
+    uint32_t period = (envgraph_action_period > UINT32_MAX?
+        UINT32_MAX: (uint32_t)envgraph_action_period);
+    if (R->rand(0, period - 1) != 0)
+        return false;
+    return true;
+}
+
+static bool envgraph_has_action_frontier(const ENTRY *E, const OUTPUT *out,
+    uint32_t id)
+{
+    (void)id;
     if (E == NULL || E->name == NULL)
         return false;
     if (envgraph_active_action != NULL &&
             envgraph_active_action_off < envgraph_active_action->len &&
             strcmp(envgraph_active_action->resource_key, E->name) == 0)
         return true;
+    if (!envgraph_action_start_possible())
+        return false;
     return envgraph_count_action_matches(E, out) > 0;
 }
 
-static bool envgraph_has_frontier(const ENTRY *E, const OUTPUT *out)
+static bool envgraph_has_frontier(const ENTRY *E, const OUTPUT *out,
+    uint32_t id)
 {
-    return envgraph_has_action_frontier(E, out) ||
+    return envgraph_has_action_frontier(E, out, id) ||
         envgraph_count_frontier_matches(E, SIZE_MAX) > 0 ||
         envgraph_count_sequence_matches(E) > 0;
 }
@@ -852,7 +895,7 @@ static MSG *envgraph_action_frontier(const ENTRY *E, size_t max_len,
             envgraph_active_action_off >= envgraph_active_action->len ||
             strcmp(envgraph_active_action->resource_key, E->name) != 0)
     {
-        if (envgraph_action_uses >= 1)
+        if (!envgraph_action_start_sampled(id, &R))
             return NULL;
         envgraph_active_action = envgraph_choose_action(E, out, R);
         envgraph_active_action_off = 0;

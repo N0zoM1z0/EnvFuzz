@@ -370,8 +370,9 @@ state-aware TTY action scheduling rather than simply injecting more bytes.
 ## M6 Prompt/State-Aware TTY Actions
 
 `build --include-tty-actions` creates higher-level stdin actions from active
-TTY recordings.  Actions start at non-newline control bytes and, by default,
-end only at enter/control-byte boundaries.  Each action records the normalized
+TTY recordings.  By default this is aimed at control-key-heavy TTY apps such
+as editors: actions start at non-newline control bytes and end only at
+enter/control-byte boundaries.  Each action records the normalized
 stdout/stderr state observed before the action:
 
 ```bash
@@ -383,12 +384,39 @@ tools/envgraph.py build --min-variants 1 \
   trace-a.jsonl trace-b.jsonl > tty-action.graph.json
 ```
 
+For line-oriented REPLs such as `sqlite3`, disable the control-key start/keep
+filters and require actions to start at a command boundary:
+
+```bash
+tools/envgraph.py build --min-variants 1 \
+  --include-resource-regex '^(/path/to/workloads/)' \
+  --include-tty-actions \
+  --tty-action-context-mode state \
+  --tty-action-boundary-only \
+  --tty-action-start-boundary-only \
+  --no-tty-action-start-control \
+  --no-tty-action-require-control \
+  --max-tty-action-enters 1 \
+  --tty-action-runtime-period 4 \
+  --exclude-tty-action-regex '^\.quit' \
+  trace-a.jsonl trace-b.jsonl > tty-repl-action.graph.json
+```
+
 Runtime action frontiers are tried before generic sequence and payload
 frontiers.  In `state` mode, an action can run only when the current normalized
 output tail classifies to the same state key, for example `edit`,
 `prompt:search`, `prompt:write`, or `prompt:save`.  The output tracker keeps
 the original first-window bytes for existing output hashing and a separate
 recent tail for frontier/action matching.
+
+For REPL-style targets, `--max-tty-action-enters 1` keeps learned actions at a
+single submitted command.  `--include-tty-action-regex` and
+`--exclude-tty-action-regex` filter decoded action payloads before runtime graph
+generation, which is useful for removing commands that terminate the session or
+only print diagnostics.  `--tty-action-runtime-budget` controls how many TTY
+actions a runtime leaf may start, and `--tty-action-runtime-period` samples new
+action starts at runtime with probability `1/period`.  The default is the
+original action behavior: one action per leaf and no sampling.
 
 ## M6 Nano 9.1 Snapshot
 
@@ -421,3 +449,22 @@ scheduling mechanism, but not a nano advantage.  The coarse `edit` state still
 groups too many editor situations together, so actions are valid-looking but
 often poorly timed.  The next useful refinement is screen/prompt clustering or
 learned action weighting, not more stdin volume.
+
+## M7 SQLite 3.53.3 Snapshot
+
+SQLite uses a line-oriented REPL rather than editor-style control keys.  Active
+recording with `.read`, `.import`, `.open`, `ATTACH`, `CREATE`, `INSERT`, and
+`SELECT` scenarios produced focused one-command action graphs.  Unthrottled
+action scheduling was too noisy:
+
+```text
+filtered active graph:           mean outs=11.7/14, graph=59027,  frontier=9702
+focused action graph, ungated:   mean outs=11.7/14, graph=251756, frontier=201615
+focused action graph, period=4:  mean outs=12.2/14, graph=104747, frontier=55843
+nograph baseline:                mean outs=12.7/14
+```
+
+Runtime sampling therefore improves the action scheduler itself, but this
+SQLite corpus still does not show a stable advantage over the no-graph baseline.
+The next SQLite-specific step is weighted action selection and prompt-stable
+injection, not higher action frequency.

@@ -1,0 +1,246 @@
+{
+  "filtered_active_graph": {
+    "abort_file_count": {
+      "max": 0,
+      "mean": 0,
+      "min": 0,
+      "sum": 0
+    },
+    "crash_file_count": {
+      "max": 0,
+      "mean": 0,
+      "min": 0,
+      "sum": 0
+    },
+    "frontier": {
+      "max": 9107,
+      "mean": 9006.1,
+      "min": 8897,
+      "sum": 90061
+    },
+    "frontier_log_lines": {
+      "max": 27469,
+      "mean": 27116.8,
+      "min": 26859,
+      "sum": 271168
+    },
+    "graph": {
+      "max": 14208,
+      "mean": 14048.5,
+      "min": 13842,
+      "sum": 140485
+    },
+    "hang_file_count": {
+      "max": 0,
+      "mean": 0,
+      "min": 0,
+      "sum": 0
+    },
+    "n": 10,
+    "outs_seen": {
+      "max": 15,
+      "mean": 13.8,
+      "min": 11,
+      "sum": 138
+    },
+    "patch_count": {
+      "max": 30,
+      "mean": 26.8,
+      "min": 23,
+      "sum": 268
+    },
+    "returncodes": [
+      0
+    ],
+    "seconds": {
+      "max": 11.536,
+      "mean": 10.4283,
+      "min": 9.788,
+      "sum": 104.283
+    },
+    "timeouts": 0
+  },
+  "nograph": {
+    "abort_file_count": {
+      "max": 0,
+      "mean": 0,
+      "min": 0,
+      "sum": 0
+    },
+    "crash_file_count": {
+      "max": 0,
+      "mean": 0,
+      "min": 0,
+      "sum": 0
+    },
+    "frontier": {
+      "max": 0,
+      "mean": 0,
+      "min": 0,
+      "sum": 0
+    },
+    "frontier_log_lines": {
+      "max": 32349,
+      "mean": 30926.2,
+      "min": 29538,
+      "sum": 309262
+    },
+    "graph": {
+      "max": 0,
+      "mean": 0,
+      "min": 0,
+      "sum": 0
+    },
+    "hang_file_count": {
+      "max": 0,
+      "mean": 0,
+      "min": 0,
+      "sum": 0
+    },
+    "n": 10,
+    "outs_seen": {
+      "max": 14,
+      "mean": 13.4,
+      "min": 11,
+      "sum": 134
+    },
+    "patch_count": {
+      "max": 30,
+      "mean": 27.3,
+      "min": 23,
+      "sum": 273
+    },
+    "returncodes": [
+      0
+    ],
+    "seconds": {
+      "max": 11.365,
+      "mean": 10.1883,
+      "min": 9.376,
+      "sum": 101.883
+    },
+    "timeouts": 0
+  },
+  "tty_action_budget1_graph": {
+    "abort_file_count": {
+      "max": 0,
+      "mean": 0,
+      "min": 0,
+      "sum": 0
+    },
+    "crash_file_count": {
+      "max": 0,
+      "mean": 0,
+      "min": 0,
+      "sum": 0
+    },
+    "frontier": {
+      "max": 104033,
+      "mean": 100689.1,
+      "min": 96888,
+      "sum": 1006891
+    },
+    "frontier_log_lines": {
+      "max": 30789,
+      "mean": 30224.8,
+      "min": 29677,
+      "sum": 302248
+    },
+    "graph": {
+      "max": 109227,
+      "mean": 105723.1,
+      "min": 101762,
+      "sum": 1057231
+    },
+    "hang_file_count": {
+      "max": 0,
+      "mean": 0,
+      "min": 0,
+      "sum": 0
+    },
+    "n": 10,
+    "outs_seen": {
+      "max": 15,
+      "mean": 13.2,
+      "min": 10,
+      "sum": 132
+    },
+    "patch_count": {
+      "max": 29,
+      "mean": 26.6,
+      "min": 23,
+      "sum": 266
+    },
+    "returncodes": [
+      0
+    ],
+    "seconds": {
+      "max": 12.594,
+      "mean": 11.1656,
+      "min": 10.49,
+      "sum": 111.656
+    },
+    "timeouts": 0
+  },
+  "tty_action_state_graph": {
+    "abort_file_count": {
+      "max": 0,
+      "mean": 0,
+      "min": 0,
+      "sum": 0
+    },
+    "crash_file_count": {
+      "max": 0,
+      "mean": 0,
+      "min": 0,
+      "sum": 0
+    },
+    "frontier": {
+      "max": 104033,
+      "mean": 100689.1,
+      "min": 96888,
+      "sum": 1006891
+    },
+    "frontier_log_lines": {
+      "max": 30789,
+      "mean": 30224.8,
+      "min": 29677,
+      "sum": 302248
+    },
+    "graph": {
+      "max": 109227,
+      "mean": 105723.1,
+      "min": 101762,
+      "sum": 1057231
+    },
+    "hang_file_count": {
+      "max": 0,
+      "mean": 0,
+      "min": 0,
+      "sum": 0
+    },
+    "n": 10,
+    "outs_seen": {
+      "max": 15,
+      "mean": 13.2,
+      "min": 10,
+      "sum": 132
+    },
+    "patch_count": {
+      "max": 29,
+      "mean": 26.6,
+      "min": 23,
+      "sum": 266
+    },
+    "returncodes": [
+      0
+    ],
+    "seconds": {
+      "max": 12.97,
+      "mean": 11.4023,
+      "min": 10.603,
+      "sum": 114.023
+    },
+    "timeouts": 0
+  }
+}

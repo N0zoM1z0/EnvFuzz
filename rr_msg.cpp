@@ -148,7 +148,8 @@ static bool queue_frontier_available(const ENTRY *E)
             option_P->head->port == E->port)
         return true;
     return option_fuzz && fuzzer_state == FUZZ_LEAF && E->mutate &&
-        envgraph_has_frontier(E, (FUZZ == NULL? NULL: &FUZZ->out));
+        envgraph_has_frontier(E, (FUZZ == NULL? NULL: &FUZZ->out),
+            (FUZZ == NULL? 0: (uint32_t)FUZZ->id));
 }
 
 static MSG *queue_frontier_next(ENTRY *E, size_t max_len)
