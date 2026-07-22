@@ -148,7 +148,7 @@ static bool queue_frontier_available(const ENTRY *E)
             option_P->head->port == E->port)
         return true;
     return option_fuzz && fuzzer_state == FUZZ_LEAF && E->mutate &&
-        envgraph_has_frontier(E);
+        envgraph_has_frontier(E, (FUZZ == NULL? NULL: &FUZZ->out));
 }
 
 static MSG *queue_frontier_next(ENTRY *E, size_t max_len)
@@ -166,7 +166,8 @@ static MSG *queue_frontier_next(ENTRY *E, size_t max_len)
             !E->mutate)
         return NULL;
 
-    M = envgraph_frontier(E, max_len, (uint32_t)FUZZ->id, *fuzzer_RNG);
+    M = envgraph_frontier(E, max_len, (uint32_t)FUZZ->id, *fuzzer_RNG,
+        &FUZZ->out);
     if (M == NULL)
         return NULL;
     if (!envgraph_frontier_keeps_queue_open())

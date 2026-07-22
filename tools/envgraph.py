@@ -514,6 +514,12 @@ def compile_resource_filters(args):
     args.sequence_resource_patterns = [
         re.compile(pattern) for pattern in args.sequence_resource_regex
     ]
+    args.tty_action_resource_patterns = [
+        re.compile(pattern) for pattern in args.tty_action_resource_regex
+    ]
+    args.tty_context_resource_patterns = [
+        re.compile(pattern) for pattern in args.tty_context_resource_regex
+    ]
 
 
 def resource_matches(patterns, values):
@@ -538,8 +544,72 @@ def sequence_resource_allowed(args, *values):
     return resource_matches(args.sequence_resource_patterns, values)
 
 
+def tty_action_resource_allowed(args, *values):
+    values = [str(value) for value in values if value is not None]
+    return resource_matches(args.tty_action_resource_patterns, values)
+
+
+def tty_context_resource_allowed(args, *values):
+    values = [str(value) for value in values if value is not None]
+    return resource_matches(args.tty_context_resource_patterns, values)
+
+
 def is_tty_control(byte):
     return (byte < 32 and byte not in (9, 10, 13)) or byte == 127
+
+
+def is_tty_action_boundary(byte):
+    return byte in (10, 13) or is_tty_control(byte)
+
+
+def normalize_tty_output(data):
+    out = bytearray()
+    esc_mode = 0
+    last_space = False
+    for byte in data:
+        if esc_mode == 1:
+            if byte == ord("["):
+                esc_mode = 2
+            elif byte in b"()*+-./":
+                esc_mode = 3
+            else:
+                esc_mode = 0
+            continue
+        if esc_mode == 2:
+            if 0x40 <= byte <= 0x7E:
+                esc_mode = 0
+            continue
+        if esc_mode == 3:
+            esc_mode = 0
+            continue
+        if byte == 0x1B:
+            esc_mode = 1
+            continue
+        if byte in (9, 10, 13) or byte < 32 or byte == 127:
+            if not last_space and out:
+                out.append(0x20)
+                last_space = True
+            continue
+        if 32 <= byte < 127:
+            out.append(byte)
+            last_space = byte == 0x20
+            continue
+        if not last_space and out:
+            out.append(0x20)
+            last_space = True
+    return bytes(out).strip()
+
+
+def classify_tty_state(context):
+    if b"Search:" in context:
+        return "prompt:search"
+    if b"Write to File:" in context or b"File Name to Write" in context:
+        return "prompt:write"
+    if b"Save modified" in context or b"Save file" in context:
+        return "prompt:save"
+    if context:
+        return "edit"
+    return "unknown"
 
 
 def sequence_metadata(payload):
@@ -604,6 +674,144 @@ def build_sequence_candidates(sequence_messages, args):
     return candidates[: args.max_sequences]
 
 
+def build_tty_action_candidates(trace_messages, args):
+    candidates = []
+    seen = set()
+
+    for trace_id, messages in sorted(trace_messages.items()):
+        messages = sorted(messages, key=lambda item: item["msg_id"])
+        contexts = collections.defaultdict(bytes)
+        inputs = collections.defaultdict(list)
+
+        for item in messages:
+            payload = bytes.fromhex(item["payload_hex"])
+            direction = item.get("direction")
+            if direction == "outbound" and tty_context_resource_allowed(
+                args, item.get("resource_key"), item.get("resource_name")
+            ):
+                key = item["resource_key"]
+                contexts[key] = (
+                    contexts[key] + normalize_tty_output(payload)
+                )[-args.tty_context_len :]
+                continue
+            if direction != "inbound" or not tty_action_resource_allowed(
+                args, item.get("resource_key"), item.get("resource_name")
+            ):
+                continue
+            inputs[(item["resource_key"], item["resource_name"])].append(
+                {
+                    "item": item,
+                    "payload": payload,
+                    "contexts": dict(contexts),
+                }
+            )
+
+        for (resource_key, resource_name), items in sorted(inputs.items()):
+            stream = b"".join(item["payload"] for item in items)
+            offsets = []
+            offset = 0
+            for index, item in enumerate(items):
+                offsets.append((offset, index))
+                offset += len(item["payload"])
+            offset_to_index = {}
+            for start, index in offsets:
+                for off in range(start, start + len(items[index]["payload"])):
+                    offset_to_index[off] = index
+
+            for start in range(len(stream)):
+                start_index = offset_to_index[start]
+                first = stream[start]
+                if args.tty_action_start_control and not is_tty_control(first):
+                    continue
+                payload = b""
+                for end in range(start, len(stream)):
+                    payload += stream[end : end + 1]
+                    if len(payload) > args.max_tty_action_len:
+                        break
+                    if len(payload) < args.min_tty_action_len:
+                        continue
+                    if args.tty_action_boundary_only and not is_tty_action_boundary(
+                        payload[-1]
+                    ):
+                        continue
+                    metadata = sequence_metadata(payload)
+                    if args.tty_action_require_control and not metadata[
+                        "sequence_control_count"
+                    ]:
+                        continue
+                    end_index = offset_to_index[end]
+                    for context_key, context in sorted(
+                        items[start_index]["contexts"].items()
+                    ):
+                        context = context[-args.tty_context_len :]
+                        state_key = classify_tty_state(context)
+                        if len(context) < args.min_tty_context_len:
+                            continue
+                        digest = payload_digest(payload)
+                        context_digest = payload_digest(context)
+                        key = "%s|%s|%s|%s" % (
+                            resource_key,
+                            digest,
+                            context_key,
+                            context_digest,
+                        )
+                        if key in seen:
+                            continue
+                        seen.add(key)
+                        candidates.append(
+                            {
+                                "trace_id": trace_id,
+                                "resource_key": resource_key,
+                                "resource_name": resource_name,
+                                "resource_class": items[start_index]["item"][
+                                    "resource_class"
+                                ],
+                                "context_resource_key": context_key,
+                                "context_len": len(context),
+                                "context_sha256": context_digest,
+                                "context_hex": context.hex(),
+                                "context_mode": args.tty_action_context_mode,
+                                "state_key": state_key,
+                                "start_msg_id": items[start_index]["item"][
+                                    "msg_id"
+                                ],
+                                "start_ordinal": items[start_index]["item"][
+                                    "ordinal"
+                                ],
+                                "message_count": end_index - start_index + 1,
+                                "action_len": len(payload),
+                                "action_sha256": digest,
+                                "action_hex": payload.hex(),
+                                "action_control_count": metadata[
+                                    "sequence_control_count"
+                                ],
+                                "action_enter_count": metadata[
+                                    "sequence_enter_count"
+                                ],
+                                "action_printable_count": metadata[
+                                    "sequence_printable_count"
+                                ],
+                                "action_score": (
+                                    metadata["sequence_control_count"] * 1000
+                                    + metadata["sequence_enter_count"] * 30
+                                    + len(context)
+                                    + len(payload)
+                                ),
+                            }
+                        )
+
+    candidates.sort(
+        key=lambda item: (
+            item["resource_key"],
+            -item["action_score"],
+            -item["action_len"],
+            item["trace_id"],
+            item["start_ordinal"],
+        )
+    )
+    return candidates[: args.max_tty_actions]
+
+
 def build_graph(args):
     if args.include_sequences and args.min_sequence_len < 1:
         raise ValueError("--min-sequence-len must be >= 1")
@@ -611,11 +819,28 @@ def build_graph(args):
         raise ValueError("--min-sequence-len must be <= --max-sequence-len")
     if args.include_sequences and not args.sequence_resource_regex:
         args.sequence_resource_regex = ["^stdio://stdin$"]
+    if args.include_tty_actions and args.min_tty_action_len < 1:
+        raise ValueError("--min-tty-action-len must be >= 1")
+    if args.include_tty_actions and args.min_tty_action_len > args.max_tty_action_len:
+        raise ValueError("--min-tty-action-len must be <= --max-tty-action-len")
+    if args.include_tty_actions and args.min_tty_context_len > args.tty_context_len:
+        raise ValueError("--min-tty-context-len must be <= --tty-context-len")
+    if args.include_tty_actions and args.tty_action_context_mode not in (
+        "state",
+        "substring",
+        "both",
+    ):
+        raise ValueError("--tty-action-context-mode must be state, substring, or both")
+    if args.include_tty_actions and not args.tty_action_resource_regex:
+        args.tty_action_resource_regex = ["^stdio://stdin$"]
+    if args.include_tty_actions and not args.tty_context_resource_regex:
+        args.tty_context_resource_regex = ["^stdio://std(out|err)$"]
     compile_resource_filters(args)
     traces = {}
     resources = {}
     candidates = collections.defaultdict(list)
     sequence_messages = collections.defaultdict(list)
+    trace_messages = collections.defaultdict(list)
     schedule_candidates = {}
     filtered = collections.Counter()
 
@@ -658,6 +883,25 @@ def build_graph(args):
                     "sched_hex": item["sched_hex"],
                 }
             continue
+        if item_type == "message" and args.include_tty_actions:
+            relevant_tty = (
+                item.get("direction") == "inbound"
+                and tty_action_resource_allowed(
+                    args, item.get("resource_key"), item.get("resource_name")
+                )
+            ) or (
+                item.get("direction") == "outbound"
+                and tty_context_resource_allowed(
+                    args, item.get("resource_key"), item.get("resource_name")
+                )
+            )
+            if relevant_tty:
+                if "payload_hex" not in item:
+                    raise ValueError(
+                        "TTY action build needs payloads; run dump with --include-payload"
+                    )
+                trace_messages[trace_id].append(item)
+
         if item_type != "message" or item.get("direction") != "inbound":
             continue
         if not resource_allowed(
@@ -724,6 +968,9 @@ def build_graph(args):
     sequence_candidates = []
     if args.include_sequences:
         sequence_candidates = build_sequence_candidates(sequence_messages, args)
+    tty_action_candidates = []
+    if args.include_tty_actions:
+        tty_action_candidates = build_tty_action_candidates(trace_messages, args)
 
     graph = {
         "format": "envgraph-v0",
@@ -736,6 +983,18 @@ def build_graph(args):
             "max_sequences": args.max_sequences,
             "sequence_require_control": args.sequence_require_control,
             "sequence_resource_regex": args.sequence_resource_regex,
+            "include_tty_actions": args.include_tty_actions,
+            "min_tty_action_len": args.min_tty_action_len,
+            "max_tty_action_len": args.max_tty_action_len,
+            "max_tty_actions": args.max_tty_actions,
+            "tty_action_start_control": args.tty_action_start_control,
+            "tty_action_boundary_only": args.tty_action_boundary_only,
+            "tty_action_require_control": args.tty_action_require_control,
+            "tty_action_resource_regex": args.tty_action_resource_regex,
+            "tty_context_resource_regex": args.tty_context_resource_regex,
+            "tty_context_len": args.tty_context_len,
+            "min_tty_context_len": args.min_tty_context_len,
+            "tty_action_context_mode": args.tty_action_context_mode,
             "input_count": len(args.dumps),
             "include_resource_regex": args.include_resource_regex,
             "exclude_resource_regex": args.exclude_resource_regex,
@@ -749,6 +1008,7 @@ def build_graph(args):
             ),
             "schedule_candidate_count": len(schedule_candidates),
             "sequence_candidate_count": len(sequence_candidates),
+            "tty_action_candidate_count": len(tty_action_candidates),
             "filtered_resource_count": filtered["resource"],
             "filtered_message_count": filtered["message"],
             "filtered_schedule_count": filtered["schedule"],
@@ -758,6 +1018,7 @@ def build_graph(args):
         "resources": resources,
         "candidate_groups": graph_candidates,
         "sequence_candidates": sequence_candidates,
+        "tty_action_candidates": tty_action_candidates,
         "schedule_candidates": [
             schedule_candidates[key] for key in sorted(schedule_candidates)
         ][: args.max_schedule_candidates],
@@ -847,6 +1108,83 @@ def main(argv=None):
         "--sequence-require-control",
         action="store_true",
         help="only store sequence candidates containing a non-newline TTY control byte",
+    )
+    build.add_argument(
+        "--include-tty-actions",
+        action="store_true",
+        help="store output-context-matched TTY action candidates",
+    )
+    build.add_argument(
+        "--tty-action-resource-regex",
+        action="append",
+        default=[],
+        help=(
+            "only build TTY actions for matching input resource keys or names; "
+            "defaults to stdin and may be repeated"
+        ),
+    )
+    build.add_argument(
+        "--tty-context-resource-regex",
+        action="append",
+        default=[],
+        help=(
+            "use matching output resource keys or names as TTY prompt context; "
+            "defaults to stdout/stderr and may be repeated"
+        ),
+    )
+    build.add_argument(
+        "--min-tty-action-len",
+        type=int,
+        default=2,
+        help="minimum byte length for TTY action candidates",
+    )
+    build.add_argument(
+        "--max-tty-action-len",
+        type=int,
+        default=32,
+        help="maximum byte length for TTY action candidates",
+    )
+    build.add_argument(
+        "--max-tty-actions",
+        type=int,
+        default=256,
+        help="maximum TTY action candidates stored in the graph",
+    )
+    build.add_argument(
+        "--tty-action-start-control",
+        action=argparse.BooleanOptionalAction,
+        default=True,
+        help="only start TTY actions at non-newline control bytes",
+    )
+    build.add_argument(
+        "--tty-action-boundary-only",
+        action=argparse.BooleanOptionalAction,
+        default=True,
+        help="only end TTY actions at enter/control-byte boundaries",
+    )
+    build.add_argument(
+        "--tty-action-require-control",
+        action=argparse.BooleanOptionalAction,
+        default=True,
+        help="only store TTY actions containing a non-newline control byte",
+    )
+    build.add_argument(
+        "--tty-context-len",
+        type=int,
+        default=64,
+        help="maximum normalized output context bytes kept before an action",
+    )
+    build.add_argument(
+        "--min-tty-context-len",
+        type=int,
+        default=4,
+        help="minimum normalized output context bytes required for a TTY action",
+    )
+    build.add_argument(
+        "--tty-action-context-mode",
+        choices=("state", "substring", "both"),
+        default="state",
+        help="match TTY actions by state key, exact normalized context substring, or both",
     )
     build.add_argument(
         "--include-resource-regex",

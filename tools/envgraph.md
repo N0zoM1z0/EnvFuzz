@@ -366,3 +366,58 @@ therefore working, but this nano corpus did not show a real-app advantage from
 byte-window stdin sequences alone.  The remaining frontier class was still
 `stdio://stdin` queue-empty, which suggests the next useful step is prompt- or
 state-aware TTY action scheduling rather than simply injecting more bytes.
+
+## M6 Prompt/State-Aware TTY Actions
+
+`build --include-tty-actions` creates higher-level stdin actions from active
+TTY recordings.  Actions start at non-newline control bytes and, by default,
+end only at enter/control-byte boundaries.  Each action records the normalized
+stdout/stderr state observed before the action:
+
+```bash
+tools/envgraph.py build --min-variants 1 \
+  --include-resource-regex '^(stdio://stdin|/path/to/workloads/)' \
+  --include-tty-actions \
+  --tty-action-context-mode state \
+  --max-tty-action-len 32 \
+  trace-a.jsonl trace-b.jsonl > tty-action.graph.json
+```
+
+Runtime action frontiers are tried before generic sequence and payload
+frontiers.  In `state` mode, an action can run only when the current normalized
+output tail classifies to the same state key, for example `edit`,
+`prompt:search`, `prompt:write`, or `prompt:save`.  The output tracker keeps
+the original first-window bytes for existing output hashing and a separate
+recent tail for frontier/action matching.
+
+## M6 Nano 9.1 Snapshot
+
+Using the same seven active nano 9.1 recordings, the TTY action graph loaded:
+
+```text
+candidates=49 sequences=0 actions=14 schedules=9
+```
+
+The learned actions included examples such as:
+
+```text
+edit           Ctrl-W "middle" Enter Ctrl-K Ctrl-U Ctrl-X
+edit           Ctrl-V Enter "ACTIVE_PAGE_INSERT target" Enter Ctrl-X
+edit           Ctrl-W "target" Enter " [found-by-active]" Ctrl-X
+prompt:search  Ctrl-K Ctrl-U Ctrl-X
+edit           Ctrl-O Enter Ctrl-X
+```
+
+A 10-seed, 10000-exec comparison showed:
+
+```text
+nograph:               mean outs=13.4/15, graph=0,       frontier=0
+filtered active graph: mean outs=13.8/15, graph=140485,  frontier=90061
+TTY action graph:      mean outs=13.2/15, graph=1057231, frontier=1006891
+```
+
+No run produced crash, hang, or abort artifacts.  This proves the action
+scheduling mechanism, but not a nano advantage.  The coarse `edit` state still
+groups too many editor situations together, so actions are valid-looking but
+often poorly timed.  The next useful refinement is screen/prompt clustering or
+learned action weighting, not more stdin volume.

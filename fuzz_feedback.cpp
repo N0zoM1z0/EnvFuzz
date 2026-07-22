@@ -4325,9 +4325,22 @@ struct WRITE
 
     int port;
     size_t len;
+    size_t tail_len;
     char name[NAME_MAX];
     uint8_t data[WINDOW];
+    uint8_t tail[WINDOW];
     TLSH tlsh;
+
+    void tail_push(uint8_t x)
+    {
+        if (tail_len < WINDOW)
+            tail[tail_len++] = x;
+        else
+        {
+            memmove(tail, tail + 1, WINDOW - 1);
+            tail[WINDOW - 1] = x;
+        }
+    }
 
     /*
      * Write data to this record.
@@ -4339,7 +4352,9 @@ struct WRITE
 
         while (len < WINDOW && !iov_itr_end(i))
         {
-            data[len++] = iov_itr_get(i);
+            uint8_t x = iov_itr_get(i);
+            data[len++] = x;
+            tail_push(x);
             iov_itr_inc(i);
         }
         if (iov_itr_end(i))
@@ -4347,6 +4362,7 @@ struct WRITE
         while (!iov_itr_end(i))
         {
             uint8_t x = iov_itr_get(i);
+            tail_push(x);
             tlsh_update(&tlsh, &x, 1);
             iov_itr_inc(i);
         }
@@ -4390,6 +4406,7 @@ struct OUTPUT
         {
             outs[k].port = E->port;
             outs[k].len  = 0;
+            outs[k].tail_len = 0;
             outs[k].name[0] = '\0';
             outs[k].name[sizeof(outs[k].name)-1] = '\0';
             if (E->name != NULL)
@@ -4456,4 +4473,3 @@ struct OUTPUT
         return tlsh_hash(&tlsh);
     }
 };
-

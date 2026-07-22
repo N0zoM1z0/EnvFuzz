@@ -110,10 +110,11 @@ static void frontier_write_output_summary(FILE *stream)
         first = false;
         fprintf(stream, "{\"port\":%d,\"name\":", W->port);
         frontier_json_string(stream, W->name);
-        fprintf(stream, ",\"len\":%zu,\"preview_hex\":\"", W->len);
-        size_t n = MIN(W->len, (size_t)32);
+        fprintf(stream, ",\"len\":%zu,\"tail_len\":%zu,\"preview_hex\":\"",
+            W->len, W->tail_len);
+        size_t n = MIN(W->tail_len, (size_t)32);
         for (size_t j = 0; j < n; j++)
-            fprintf(stream, "%.2x", W->data[j]);
+            fprintf(stream, "%.2x", W->tail[j]);
         fputs("\"}", stream);
     }
     fputs("]}", stream);

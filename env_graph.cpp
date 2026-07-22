@@ -5,6 +5,7 @@
  * that to empty-queue frontier payloads.  M3 imports a small whitelist of
  * recorded schedule nodes into the existing syscall emulation lookup table.
  * M5 adds sequence-aware queue frontiers for TTY-like byte streams.
+ * M6 adds output-context-aware TTY action frontiers.
  */
 
 static void emulate_set_syscall(const SYSCALL *call);
@@ -25,13 +26,38 @@ struct ENVGRAPH_SEQ
     uint8_t *payload;
 };
 
+struct ENVGRAPH_ACTION
+{
+    ENVGRAPH_ACTION *next;
+    const char *resource_key;
+    const char *context_key;
+    const char *state_key;
+    uint8_t context_mode;
+    size_t context_len;
+    uint8_t *context;
+    size_t len;
+    uint8_t *payload;
+};
+
+enum
+{
+    ENVGRAPH_CONTEXT_SUBSTRING = 0,
+    ENVGRAPH_CONTEXT_STATE     = 1,
+    ENVGRAPH_CONTEXT_BOTH      = 2,
+};
+
 static ENVGRAPH_CAND *envgraph_cands = NULL;
 static ENVGRAPH_SEQ *envgraph_seqs = NULL;
+static ENVGRAPH_ACTION *envgraph_actions = NULL;
 static ENVGRAPH_SEQ *envgraph_active_seq = NULL;
+static ENVGRAPH_ACTION *envgraph_active_action = NULL;
 static size_t envgraph_cand_count = 0;
 static size_t envgraph_seq_count = 0;
+static size_t envgraph_action_count = 0;
 static size_t envgraph_sched_count = 0;
 static size_t envgraph_active_seq_off = 0;
+static size_t envgraph_active_action_off = 0;
+static size_t envgraph_action_uses = 0;
 static bool envgraph_frontier_more = false;
 
 static bool envgraph_enabled(void)
@@ -200,6 +226,35 @@ static void envgraph_add_sequence(const char *resource_key, size_t len,
     S->next         = envgraph_seqs;
     envgraph_seqs   = S;
     envgraph_seq_count++;
+}
+
+static uint8_t envgraph_parse_context_mode(const char *mode)
+{
+    if (mode == NULL || strcmp(mode, "substring") == 0)
+        return ENVGRAPH_CONTEXT_SUBSTRING;
+    if (strcmp(mode, "state") == 0)
+        return ENVGRAPH_CONTEXT_STATE;
+    if (strcmp(mode, "both") == 0)
+        return ENVGRAPH_CONTEXT_BOTH;
+    return ENVGRAPH_CONTEXT_SUBSTRING;
+}
+
+static void envgraph_add_action(const char *resource_key,
+    const char *context_key, const char *state_key, uint8_t context_mode,
+    size_t context_len, uint8_t *context, size_t len, uint8_t *payload)
+{
+    ENVGRAPH_ACTION *A = (ENVGRAPH_ACTION *)xmalloc(sizeof(*A));
+    A->resource_key = resource_key;
+    A->context_key  = context_key;
+    A->state_key    = state_key;
+    A->context_mode = context_mode;
+    A->context_len  = context_len;
+    A->context      = context;
+    A->len          = len;
+    A->payload      = payload;
+    A->next         = envgraph_actions;
+    envgraph_actions = A;
+    envgraph_action_count++;
 }
 
 static bool envgraph_schedule_allowed(int no)
@@ -389,6 +444,76 @@ static void envgraph_load(void)
     }
 
     p = buf;
+    while ((p = envgraph_find_literal(p, end, "\"action_hex\"")) != NULL)
+    {
+        const char *obj = p;
+        while (obj > buf && *obj != '{')
+            obj--;
+        const char *obj_end = p;
+        while (obj_end < end && *obj_end != '}')
+            obj_end++;
+        if (obj >= p || obj_end >= end)
+        {
+            p++;
+            continue;
+        }
+
+        char *resource_key = envgraph_parse_string(
+            envgraph_find_key(obj, obj_end, "resource_key"), obj_end);
+        char *context_key = envgraph_parse_string(
+            envgraph_find_key(obj, obj_end, "context_resource_key"),
+            obj_end);
+        char *state_key = envgraph_parse_string(
+            envgraph_find_key(obj, obj_end, "state_key"), obj_end);
+        char *context_mode = envgraph_parse_string(
+            envgraph_find_key(obj, obj_end, "context_mode"), obj_end);
+        char *action_hex = envgraph_parse_string(
+            envgraph_find_key(obj, obj_end, "action_hex"), obj_end);
+        char *context_hex = envgraph_parse_string(
+            envgraph_find_key(obj, obj_end, "context_hex"), obj_end);
+        size_t action_len = 0, context_len = 0;
+        bool ok_action_len = envgraph_parse_size(
+            envgraph_find_key(obj, obj_end, "action_len"), obj_end,
+            &action_len);
+        bool ok_context_len = envgraph_parse_size(
+            envgraph_find_key(obj, obj_end, "context_len"), obj_end,
+            &context_len);
+
+        if (resource_key == NULL || context_key == NULL ||
+                action_hex == NULL || context_hex == NULL ||
+                !ok_action_len || !ok_context_len)
+            error("invalid EnvGraph \"%s\": malformed TTY action candidate",
+                option_graphname);
+
+        if (action_len > 0 && context_len > 0)
+        {
+            uint8_t *action = envgraph_decode_hex(action_hex, action_len);
+            uint8_t *context = envgraph_decode_hex(context_hex, context_len);
+            if (action == NULL || context == NULL)
+                error("invalid EnvGraph \"%s\": malformed TTY action hex",
+                    option_graphname);
+            envgraph_add_action(resource_key, context_key, state_key,
+                envgraph_parse_context_mode(context_mode), context_len,
+                context, action_len, action);
+        }
+        else
+        {
+            xfree(resource_key);
+            xfree(context_key);
+            if (state_key != NULL)
+                xfree(state_key);
+        }
+        if (context_mode != NULL)
+            xfree(context_mode);
+        if (action_hex != NULL)
+            xfree(action_hex);
+        if (context_hex != NULL)
+            xfree(context_hex);
+
+        p = obj_end + 1;
+    }
+
+    p = buf;
     while ((p = envgraph_find_literal(p, end, "\"sched_hex\"")) != NULL)
     {
         const char *obj = p;
@@ -430,9 +555,10 @@ static void envgraph_load(void)
     xfree(buf);
     if (option_log >= 1)
         fprintf(stderr,
-            "%sENVGRAPH%s %s candidates=%zu sequences=%zu schedules=%zu\n",
+            "%sENVGRAPH%s %s candidates=%zu sequences=%zu actions=%zu "
+            "schedules=%zu\n",
             MAGENTA, OFF, option_graphname, envgraph_cand_count,
-            envgraph_seq_count, envgraph_sched_count);
+            envgraph_seq_count, envgraph_action_count, envgraph_sched_count);
 }
 
 static size_t envgraph_count_matches(const ENTRY *E, const MSG *M)
@@ -507,6 +633,159 @@ static MSG *envgraph_make_frontier_msg(const ENTRY *E, const uint8_t *payload,
     return M;
 }
 
+static size_t envgraph_normalize_tty(const uint8_t *data, size_t len,
+    uint8_t *out, size_t out_size)
+{
+    size_t j = 0;
+    int esc = 0;
+    bool last_space = false;
+    for (size_t i = 0; i < len; i++)
+    {
+        uint8_t x = data[i];
+        if (esc == 1)
+        {
+            if (x == '[')
+                esc = 2;
+            else if (x == '(' || x == ')' || x == '*' || x == '+' ||
+                    x == '-' || x == '.' || x == '/')
+                esc = 3;
+            else
+                esc = 0;
+            continue;
+        }
+        if (esc == 2)
+        {
+            if (x >= 0x40 && x <= 0x7E)
+                esc = 0;
+            continue;
+        }
+        if (esc == 3)
+        {
+            esc = 0;
+            continue;
+        }
+        if (x == 0x1B)
+        {
+            esc = 1;
+            continue;
+        }
+        if (x == '\t' || x == '\n' || x == '\r' || x < 0x20 ||
+                x == 0x7F || x >= 0x7F)
+        {
+            if (!last_space && j > 0 && j < out_size)
+            {
+                out[j++] = ' ';
+                last_space = true;
+            }
+            continue;
+        }
+        if (j >= out_size)
+            break;
+        out[j++] = x;
+        last_space = (x == ' ');
+    }
+    while (j > 0 && out[j-1] == ' ')
+        j--;
+    return j;
+}
+
+static bool envgraph_contains(const uint8_t *haystack, size_t haystack_len,
+    const uint8_t *needle, size_t needle_len)
+{
+    if (needle_len == 0)
+        return true;
+    if (haystack_len < needle_len)
+        return false;
+    for (size_t i = 0; i + needle_len <= haystack_len; i++)
+    {
+        if (memcmp(haystack + i, needle, needle_len) == 0)
+            return true;
+    }
+    return false;
+}
+
+static bool envgraph_contains_str(const uint8_t *haystack, size_t haystack_len,
+    const char *needle)
+{
+    return envgraph_contains(haystack, haystack_len,
+        (const uint8_t *)needle, strlen(needle));
+}
+
+static const char *envgraph_tty_state(const uint8_t *context,
+    size_t context_len)
+{
+    if (envgraph_contains_str(context, context_len, "Search:"))
+        return "prompt:search";
+    if (envgraph_contains_str(context, context_len, "Write to File:") ||
+            envgraph_contains_str(context, context_len,
+                "File Name to Write"))
+        return "prompt:write";
+    if (envgraph_contains_str(context, context_len, "Save modified") ||
+            envgraph_contains_str(context, context_len, "Save file"))
+        return "prompt:save";
+    if (context_len > 0)
+        return "edit";
+    return "unknown";
+}
+
+static bool envgraph_output_matches(const ENVGRAPH_ACTION *A,
+    const OUTPUT *out)
+{
+    if (A == NULL || out == NULL || A->context_len == 0)
+        return false;
+    for (int i = 0; i < OUTPUT::NPORTS; i++)
+    {
+        const WRITE *W = &out->outs[i];
+        if (W->port < 0)
+            continue;
+        if (A->context_key != NULL && strcmp(A->context_key, W->name) != 0)
+            continue;
+        const uint8_t *data = (W->tail_len > 0? W->tail: W->data);
+        size_t len = (W->tail_len > 0? W->tail_len: W->len);
+        uint8_t norm[WRITE::WINDOW];
+        size_t norm_len = envgraph_normalize_tty(data, len, norm,
+            sizeof(norm));
+        bool state_match = A->state_key != NULL &&
+            strcmp(A->state_key, envgraph_tty_state(norm, norm_len)) == 0;
+        bool context_match = envgraph_contains(norm, norm_len, A->context,
+            A->context_len);
+        switch (A->context_mode)
+        {
+            case ENVGRAPH_CONTEXT_STATE:
+                if (state_match)
+                    return true;
+                break;
+            case ENVGRAPH_CONTEXT_BOTH:
+                if (state_match && context_match)
+                    return true;
+                break;
+            default:
+                if (context_match)
+                    return true;
+                break;
+        }
+    }
+    return false;
+}
+
+static size_t envgraph_count_action_matches(const ENTRY *E, const OUTPUT *out)
+{
+    if (!envgraph_enabled() || E == NULL || E->name == NULL)
+        return 0;
+    size_t count = 0;
+    for (ENVGRAPH_ACTION *A = envgraph_actions; A != NULL; A = A->next)
+    {
+        if (A->len == 0)
+            continue;
+        if (strcmp(A->resource_key, E->name) != 0)
+            continue;
+        if (!envgraph_output_matches(A, out))
+            continue;
+        count++;
+    }
+    return count;
+}
+
 static size_t envgraph_count_sequence_matches(const ENTRY *E)
 {
     if (!envgraph_enabled() || E == NULL || E->name == NULL)
@@ -523,10 +802,82 @@ static size_t envgraph_count_sequence_matches(const ENTRY *E)
     return count;
 }
 
-static bool envgraph_has_frontier(const ENTRY *E)
+static bool envgraph_has_action_frontier(const ENTRY *E, const OUTPUT *out)
 {
-    return envgraph_count_frontier_matches(E, SIZE_MAX) > 0 ||
+    if (E == NULL || E->name == NULL)
+        return false;
+    if (envgraph_active_action != NULL &&
+            envgraph_active_action_off < envgraph_active_action->len &&
+            strcmp(envgraph_active_action->resource_key, E->name) == 0)
+        return true;
+    return envgraph_count_action_matches(E, out) > 0;
+}
+
+static bool envgraph_has_frontier(const ENTRY *E, const OUTPUT *out)
+{
+    return envgraph_has_action_frontier(E, out) ||
+        envgraph_count_frontier_matches(E, SIZE_MAX) > 0 ||
         envgraph_count_sequence_matches(E) > 0;
+}
+
+static ENVGRAPH_ACTION *envgraph_choose_action(const ENTRY *E,
+    const OUTPUT *out, RNG &R)
+{
+    size_t count = envgraph_count_action_matches(E, out);
+    if (count == 0)
+        return NULL;
+    size_t idx = R.rand(0, (uint32_t)count - 1);
+    for (ENVGRAPH_ACTION *A = envgraph_actions; A != NULL; A = A->next)
+    {
+        if (A->len == 0)
+            continue;
+        if (strcmp(A->resource_key, E->name) != 0)
+            continue;
+        if (!envgraph_output_matches(A, out))
+            continue;
+        if (idx-- != 0)
+            continue;
+        return A;
+    }
+    return NULL;
+}
+
+static MSG *envgraph_action_frontier(const ENTRY *E, size_t max_len,
+    uint32_t id, const OUTPUT *out, RNG &R)
+{
+    if (!envgraph_enabled() || E == NULL || E->name == NULL || max_len == 0)
+        return NULL;
+
+    if (envgraph_active_action == NULL ||
+            envgraph_active_action_off >= envgraph_active_action->len ||
+            strcmp(envgraph_active_action->resource_key, E->name) != 0)
+    {
+        if (envgraph_action_uses >= 1)
+            return NULL;
+        envgraph_active_action = envgraph_choose_action(E, out, R);
+        envgraph_active_action_off = 0;
+        if (envgraph_active_action != NULL)
+            envgraph_action_uses++;
+    }
+    if (envgraph_active_action == NULL)
+        return NULL;
+
+    size_t remaining = envgraph_active_action->len - envgraph_active_action_off;
+    size_t len = (remaining < max_len? remaining: max_len);
+    if (len == 0)
+        return NULL;
+
+    MSG *M = envgraph_make_frontier_msg(E,
+        envgraph_active_action->payload + envgraph_active_action_off, len, id);
+    envgraph_active_action_off += len;
+    if (envgraph_active_action_off >= envgraph_active_action->len)
+    {
+        envgraph_active_action = NULL;
+        envgraph_active_action_off = 0;
+    }
+    else
+        envgraph_frontier_more = true;
+    return M;
 }
 
 static ENVGRAPH_SEQ *envgraph_choose_sequence(const ENTRY *E, RNG &R)
@@ -604,10 +955,13 @@ static MSG *envgraph_payload_frontier(const ENTRY *E, size_t max_len,
 }
 
 static MSG *envgraph_frontier(const ENTRY *E, size_t max_len, uint32_t id,
-    RNG &R)
+    RNG &R, const OUTPUT *out)
 {
     envgraph_frontier_more = false;
-    MSG *M = envgraph_sequence_frontier(E, max_len, id, R);
+    MSG *M = envgraph_action_frontier(E, max_len, id, out, R);
+    if (M != NULL)
+        return M;
+    M = envgraph_sequence_frontier(E, max_len, id, R);
     if (M != NULL)
         return M;
     return envgraph_payload_frontier(E, max_len, id, R);
